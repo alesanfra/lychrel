@@ -1,0 +1,2 @@
+# lychrel
+find Lychrel numbers
