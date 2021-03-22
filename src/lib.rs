@@ -1,24 +1,25 @@
+use num_bigint::BigUint;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
-fn _reverse_and_add(number: u128) -> u128 {
-    let reversed: u128 = number.to_string().chars().rev().collect::<String>().parse().unwrap();
-    number + reversed
+
+fn _reverse(number: &str) -> usize {
+    number.to_string().chars().rev().collect::<String>().parse().unwrap()
 }
 
-fn _is_palindrome_base_10(number: u128) -> bool {
-    let string_number = number.to_string();
-    string_number == string_number.chars().rev().collect::<String>()
+fn _is_palindrome(string: &str) -> bool {
+    string.chars().eq(string.chars().rev())
 }
 
-fn _find_palindrome(number: u128) -> (u128, usize) {
-    let mut next: u128 = number;
+fn _find_palindrome(number: usize) -> (usize, usize) {
+    let mut next: usize = number;
     let mut iterations: usize = 0;
     loop {
-        if _is_palindrome_base_10(next) {
+        let s = next.to_string();
+        if _is_palindrome(&s) {
             break;
         }
-        next = _reverse_and_add(next);
+        next += _reverse(&s);
         iterations += 1;
     }
     (next, iterations)
@@ -26,21 +27,27 @@ fn _find_palindrome(number: u128) -> (u128, usize) {
 
 /// Perform reverse-and-add process
 #[pyfunction]
-fn reverse_and_add(number: u128) -> PyResult<u128> {
-    Ok(_reverse_and_add(number))
+fn reverse_and_add(number: usize) -> PyResult<usize> {
+    Ok(number + _reverse(&number.to_string()))
 }
 
 /// Find the first palindrome produced by reverse-and-add routine
 #[pyfunction]
-fn find_palindrome(number: u128) -> PyResult<u128> {
+fn find_palindrome(number: usize) -> PyResult<usize> {
     let (palindrome, _) = _find_palindrome(number);
     Ok(palindrome)
 }
 
 /// Find the first palindrome produced by reverse-and-add routine
 #[pyfunction]
-fn find_palindrome_with_iterations(number: u128) -> PyResult<(u128, usize)> {
+fn find_palindrome_with_iterations(number: usize) -> PyResult<(usize, usize)> {
     Ok(_find_palindrome(number))
+}
+
+/// Find the first palindrome produced by reverse-and-add routine
+#[pyfunction]
+fn echo(number: BigUint) -> PyResult<BigUint> {
+    Ok(number)
 }
 
 /// A collection of functions to play with Lychrel numbers
@@ -50,5 +57,6 @@ fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(reverse_and_add, module)?)?;
     module.add_function(wrap_pyfunction!(find_palindrome, module)?)?;
     module.add_function(wrap_pyfunction!(find_palindrome_with_iterations, module)?)?;
+    module.add_function(wrap_pyfunction!(echo, module)?)?;
     Ok(())
 }

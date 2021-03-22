@@ -5,7 +5,8 @@ authors = ["Alessio Sanfratello <sanfra90@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-pyo3 = { version = "0.13", features = ["extension-module", "abi3-py36"] }
+pyo3 = { version = "*", features = ["num-bigint", "extension-module"] }
+num-bigint = "*"
 
 [lib]
 name = "lychrel"
