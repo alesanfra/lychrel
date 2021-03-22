@@ -4,7 +4,6 @@ use pyo3::wrap_pyfunction;
 
 const BASE: u32 = 10;
 
-#[inline]
 fn _reverse(number: &BigUint) -> BigUint {
     BigUint::from_radix_be(&number.to_radix_le(BASE), BASE).unwrap()
 }
@@ -12,6 +11,7 @@ fn _reverse(number: &BigUint) -> BigUint {
 fn _find_palindrome(number: BigUint) -> (BigUint, usize) {
     let mut next: BigUint = number;
     let mut iterations: usize = 0;
+
     while iterations < usize::MAX {
         let base10_representation = next.to_radix_le(BASE);
 
@@ -24,6 +24,7 @@ fn _find_palindrome(number: BigUint) -> (BigUint, usize) {
         next += BigUint::from_radix_be(&base10_representation, BASE).unwrap();
         iterations += 1;
     }
+
     (next, iterations)
 }
 
