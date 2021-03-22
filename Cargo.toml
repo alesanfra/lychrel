@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 pyo3 = { version = "*", features = ["num-bigint", "extension-module"] }
-num-bigint = "*"
+num-bigint = "<0.4.0"
 
 [lib]
 name = "lychrel"
