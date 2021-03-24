@@ -1,18 +1,38 @@
 use num_bigint::BigUint;
+use pyo3::create_exception;
+use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
 const BASE: u32 = 10;
+const MAX_ITERATIONS: usize = 10000;
 
-fn _reverse(number: &BigUint) -> BigUint {
-    BigUint::from_radix_be(&number.to_radix_le(BASE), BASE).unwrap()
+create_exception!(lychrel, LychrelError, PyException);
+
+
+/// Perform reverse-and-add process
+#[pyfunction]
+fn reverse_and_add(number: BigUint) -> PyResult<BigUint> {
+    match BigUint::from_radix_be(&number.to_radix_le(BASE), BASE) {
+        Some(reversed) => Ok(number + reversed),
+        None => Err(LychrelError::new_err("Unable to reverse number"))
+    }
 }
 
-fn _find_palindrome(number: BigUint) -> (BigUint, usize) {
+/// Find the first palindrome produced by reverse-and-add routine
+#[pyfunction]
+fn find_palindrome(number: BigUint) -> PyResult<BigUint> {
+    let (palindrome, _) = find_palindrome_with_iterations(number)?;
+    Ok(palindrome)
+}
+
+/// Find the first palindrome produced by reverse-and-add routine
+#[pyfunction]
+fn find_palindrome_with_iterations(number: BigUint) -> PyResult<(BigUint, usize)> {
     let mut next: BigUint = number;
     let mut iterations: usize = 0;
 
-    while iterations < usize::MAX {
+    while iterations < MAX_ITERATIONS {
         let base10_representation = next.to_radix_le(BASE);
 
         // Check whether the decimal representation is palindrome
@@ -25,26 +45,11 @@ fn _find_palindrome(number: BigUint) -> (BigUint, usize) {
         iterations += 1;
     }
 
-    (next, iterations)
-}
-
-/// Perform reverse-and-add process
-#[pyfunction]
-fn reverse_and_add(number: BigUint) -> PyResult<BigUint> {
-    Ok(_reverse(&number) + number)
-}
-
-/// Find the first palindrome produced by reverse-and-add routine
-#[pyfunction]
-fn find_palindrome(number: BigUint) -> PyResult<BigUint> {
-    let (palindrome, _) = _find_palindrome(number);
-    Ok(palindrome)
-}
-
-/// Find the first palindrome produced by reverse-and-add routine
-#[pyfunction]
-fn find_palindrome_with_iterations(number: BigUint) -> PyResult<(BigUint, usize)> {
-    Ok(_find_palindrome(number))
+    if iterations == MAX_ITERATIONS {
+        Err(LychrelError::new_err("Maximum iteration reached"))
+    } else {
+        Ok((next, iterations))
+    }
 }
 
 /// A collection of functions to play with Lychrel numbers
