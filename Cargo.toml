@@ -3,6 +3,11 @@ name = "lychrel"
 version = "0.1.0"
 authors = ["Alessio Sanfratello <sanfra90@gmail.com>"]
 edition = "2018"
+description = "A collection of functions to play with Lychrel numbers and other funny mathematical problems"
+readme = "README.md"
+homepage = "https://github.com/alesanfra/lychrel"
+repository = "https://github.com/alesanfra/lychrel"
+license-file = "LICENSE"
 
 [dependencies]
 pyo3 = { version = "*", features = ["num-bigint", "extension-module"] }
@@ -17,8 +22,10 @@ requires-python = ">=3.6"
 requires-dist = [
 ]
 classifier = [
+    "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering :: Mathematics"
 ]

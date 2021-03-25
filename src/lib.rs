@@ -9,34 +9,33 @@ const MAX_ITERATIONS: usize = 10000;
 
 create_exception!(lychrel, LychrelError, PyException);
 
-
-/// Perform reverse-and-add process
+/// Reverse the base 10 representation of the input number and return the sum.
+/// E.g. reverse_and_add(23) -> 55, because 23 + 32 == 55
 #[pyfunction]
 fn reverse_and_add(number: BigUint) -> PyResult<BigUint> {
     match BigUint::from_radix_be(&number.to_radix_le(BASE), BASE) {
         Some(reversed) => Ok(number + reversed),
-        None => Err(LychrelError::new_err("Unable to reverse number"))
+        None => Err(LychrelError::new_err("Unable to reverse number")),
     }
 }
 
 /// Find the first palindrome produced by reverse-and-add routine
 #[pyfunction]
-fn find_palindrome(number: BigUint) -> PyResult<BigUint> {
-    let (palindrome, _) = find_palindrome_with_iterations(number)?;
-    Ok(palindrome)
-}
-
-/// Find the first palindrome produced by reverse-and-add routine
-#[pyfunction]
-fn find_palindrome_with_iterations(number: BigUint) -> PyResult<(BigUint, usize)> {
+fn lychrel_palindrome_with_iterations(
+    number: BigUint,
+    max_iterations: usize,
+) -> PyResult<(BigUint, usize)> {
     let mut next: BigUint = number;
     let mut iterations: usize = 0;
 
-    while iterations < MAX_ITERATIONS {
+    while iterations < max_iterations {
         let base10_representation = next.to_radix_le(BASE);
 
         // Check whether the decimal representation is palindrome
-        if base10_representation.iter().eq(base10_representation.iter().rev()) {
+        if base10_representation
+            .iter()
+            .eq(base10_representation.iter().rev())
+        {
             break;
         }
 
@@ -45,19 +44,48 @@ fn find_palindrome_with_iterations(number: BigUint) -> PyResult<(BigUint, usize)
         iterations += 1;
     }
 
-    if iterations == MAX_ITERATIONS {
+    if iterations == max_iterations {
         Err(LychrelError::new_err("Maximum iteration reached"))
     } else {
         Ok((next, iterations))
     }
 }
 
-/// A collection of functions to play with Lychrel numbers
+/// Find the first palindrome produced by reverse-and-add routine
+#[pyfunction]
+fn lychrel_palindrome(number: BigUint) -> PyResult<BigUint> {
+    let (palindrome, _) = lychrel_palindrome_with_iterations(number, MAX_ITERATIONS)?;
+    Ok(palindrome)
+}
+
+/// Find the first palindrome produced by reverse-and-add routine
+#[pyfunction]
+fn lychrel_iterations(number: BigUint) -> PyResult<usize> {
+    let (_, iterations) = lychrel_palindrome_with_iterations(number, MAX_ITERATIONS)?;
+    Ok(iterations)
+}
+
+/// Find the first palindrome produced by reverse-and-add routine
+#[pyfunction]
+fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
+    match lychrel_palindrome_with_iterations(number, iterations.unwrap_or(MAX_ITERATIONS)) {
+        Ok(_) => false,
+        Err(_) => true,
+    }
+}
+
+/// A collection of functions to play with Lychrel numbers and other funny mathematical problems
 #[pymodule]
 fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
     module.add_function(wrap_pyfunction!(reverse_and_add, module)?)?;
-    module.add_function(wrap_pyfunction!(find_palindrome, module)?)?;
-    module.add_function(wrap_pyfunction!(find_palindrome_with_iterations, module)?)?;
+    module.add_function(wrap_pyfunction!(is_lychrel_candidate, module)?)?;
+    module.add_function(wrap_pyfunction!(lychrel_palindrome, module)?)?;
+    module.add_function(wrap_pyfunction!(lychrel_iterations, module)?)?;
+    module.add_function(wrap_pyfunction!(
+        lychrel_palindrome_with_iterations,
+        module
+    )?)?;
+
     Ok(())
 }

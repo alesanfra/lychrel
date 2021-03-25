@@ -23,15 +23,34 @@ def py_find_palindrome(number):
 
 
 @pytest.mark.parametrize("number", LYCHREL_NUMBERS)
-def test_find_palindrome(number):
-    assert lychrel.find_palindrome(number) == py_find_palindrome(number)[0]
+def test_lychrel_palindrome(number):
+    assert lychrel.lychrel_palindrome(number) == py_find_palindrome(number)[0]
 
 
 @pytest.mark.parametrize("number", LYCHREL_NUMBERS)
-def test_find_palindrome_with_iterations(number):
+def test_lychrel_iterations(number):
+    assert lychrel.lychrel_iterations(number) == py_find_palindrome(number)[1]
+
+
+@pytest.mark.parametrize("number", LYCHREL_NUMBERS)
+def test_lychrel_palindrome_with_iterations(number):
+    assert lychrel.lychrel_palindrome_with_iterations(number, 300) == py_find_palindrome(number)
+
+
+@pytest.mark.parametrize("number, expected_result", [
+    (89, False),
+    (196, True)
+])
+def test_is_lychrel_candidate(number, expected_result):
+    assert lychrel.is_lychrel_candidate(number) is expected_result
+
+
+@pytest.mark.parametrize("number", LYCHREL_NUMBERS)
+def test_benchmark_implementation(number):
     start_rs = time.time()
+
     for _ in range(1000):
-        _ = lychrel.find_palindrome_with_iterations(number)
+        _ = lychrel.lychrel_palindrome_with_iterations(number, 300)
     rust_time = time.time() - start_rs
 
     start_py = time.time()
@@ -40,5 +59,5 @@ def test_find_palindrome_with_iterations(number):
 
     py_time = time.time() - start_py
 
-    assert lychrel.find_palindrome_with_iterations(89) == py_find_palindrome(89)
+    # Benchmark
     assert py_time > rust_time
