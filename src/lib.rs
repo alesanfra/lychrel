@@ -19,7 +19,8 @@ fn reverse_and_add(number: BigUint) -> PyResult<BigUint> {
     }
 }
 
-/// Find the first palindrome produced by reverse-and-add routine
+/// Find the first palindrome produced by reverse-and-add routine (including number of iterations
+/// needed)
 #[pyfunction]
 fn lychrel_palindrome_with_iterations(
     number: BigUint,
@@ -58,20 +59,18 @@ fn lychrel_palindrome(number: BigUint) -> PyResult<BigUint> {
     Ok(palindrome)
 }
 
-/// Find the first palindrome produced by reverse-and-add routine
+/// Returns the number of iterations needed to find the first palindrome produced by
+/// reverse-and-add routine
 #[pyfunction]
 fn lychrel_iterations(number: BigUint) -> PyResult<usize> {
     let (_, iterations) = lychrel_palindrome_with_iterations(number, MAX_ITERATIONS)?;
     Ok(iterations)
 }
 
-/// Find the first palindrome produced by reverse-and-add routine
+/// Check whether the input is a possible Lychrel number
 #[pyfunction]
 fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
-    match lychrel_palindrome_with_iterations(number, iterations.unwrap_or(MAX_ITERATIONS)) {
-        Ok(_) => false,
-        Err(_) => true,
-    }
+    lychrel_palindrome_with_iterations(number, iterations.unwrap_or(MAX_ITERATIONS)).is_err()
 }
 
 /// A collection of functions to play with Lychrel numbers and other funny mathematical problems
