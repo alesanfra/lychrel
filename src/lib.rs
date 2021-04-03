@@ -1,4 +1,4 @@
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint, ToBigInt};
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
@@ -73,6 +73,29 @@ fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
     lychrel_palindrome_with_iterations(number, iterations.unwrap_or(MAX_ITERATIONS)).is_err()
 }
 
+/// Generalized fibonacci sequence
+#[pyfunction]
+fn pq_fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
+    if number == 0 || number == 1 {
+        return number.to_bigint().unwrap();
+    }
+
+    let lucas_p = p.unwrap_or(1);
+    let lucas_q = q.unwrap_or(-1);
+
+    let mut p1: BigInt = 0.to_bigint().unwrap();
+    let mut p2: BigInt = 1.to_bigint().unwrap();
+
+    for _ in 1..number {
+        let next_p1 = p2.clone();
+        let next_p2 = (p2 * lucas_p) - (p1 * lucas_q);
+        p1 = next_p1;
+        p2 = next_p2;
+    }
+
+    p2
+}
+
 /// A collection of functions to play with Lychrel numbers and other funny mathematical problems
 #[pymodule]
 fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
@@ -85,6 +108,7 @@ fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
         lychrel_palindrome_with_iterations,
         module
     )?)?;
+    module.add_function(wrap_pyfunction!(pq_fibonacci, module)?)?;
 
     Ok(())
 }
