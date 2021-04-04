@@ -1,4 +1,5 @@
 use num_bigint::{BigInt, BigUint, ToBigInt};
+use num_traits::{One, Zero};
 use pyo3::create_exception;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
@@ -77,23 +78,23 @@ fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
 #[pyfunction]
 fn pq_fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
     if number == 0 || number == 1 {
-        return number.to_bigint().unwrap();
+        number.to_bigint().unwrap()
+    } else {
+        let lucas_p = p.unwrap_or(1);
+        let lucas_q = q.unwrap_or(-1);
+
+        let mut previous = BigInt::zero();
+        let mut current = BigInt::one();
+
+        for _ in 1..number {
+            let next_previous = current.clone();
+            let next_current = (current * lucas_p) - (previous * lucas_q);
+            previous = next_previous;
+            current = next_current;
+        }
+
+        current
     }
-
-    let lucas_p = p.unwrap_or(1);
-    let lucas_q = q.unwrap_or(-1);
-
-    let mut p1: BigInt = 0.to_bigint().unwrap();
-    let mut p2: BigInt = 1.to_bigint().unwrap();
-
-    for _ in 1..number {
-        let next_p1 = p2.clone();
-        let next_p2 = (p2 * lucas_p) - (p1 * lucas_q);
-        p1 = next_p1;
-        p2 = next_p2;
-    }
-
-    p2
 }
 
 /// A collection of functions to play with Lychrel numbers and other funny mathematical problems
