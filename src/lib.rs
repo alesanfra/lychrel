@@ -76,8 +76,8 @@ fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
 
 /// Generalized fibonacci sequence
 #[pyfunction]
-fn pq_fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
-    if number == 0 || number == 1 {
+fn fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
+    if number <= 1 {
         number.to_bigint().unwrap()
     } else {
         let lucas_p = p.unwrap_or(1);
@@ -109,7 +109,7 @@ fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
         lychrel_palindrome_with_iterations,
         module
     )?)?;
-    module.add_function(wrap_pyfunction!(pq_fibonacci, module)?)?;
+    module.add_function(wrap_pyfunction!(fibonacci, module)?)?;
 
     Ok(())
 }
