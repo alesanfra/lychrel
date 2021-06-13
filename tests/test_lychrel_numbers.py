@@ -39,7 +39,9 @@ def test_lychrel_iterations(number):
 
 @pytest.mark.parametrize("number", LYCHREL_NUMBERS)
 def test_lychrel_palindrome_with_iterations(number):
-    assert lychrel.lychrel_palindrome_with_iterations(number, 300) == py_find_palindrome(number)
+    assert lychrel.lychrel_palindrome_with_iterations(
+        number, 300
+    ) == py_find_palindrome(number)
 
 
 @pytest.mark.parametrize("number, expected_result", [(89, False), (196, True)])

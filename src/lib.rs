@@ -1,21 +1,19 @@
 use num_bigint::{BigInt, BigUint, ToBigInt};
 use num_traits::{One, Zero};
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
-use pyo3::exceptions::PyValueError;
 
 const BASE: u32 = 10;
 const MAX_ITERATIONS: usize = 10000;
-
 
 /// Reverse the base 10 representation of the input number and return the sum.
 /// E.g. reverse_and_add(23) -> 55, because 23 + 32 == 55
 #[pyfunction]
 fn reverse_and_add(number: BigUint) -> PyResult<BigUint> {
-    match BigUint::from_radix_be(&number.to_radix_le(BASE), BASE) {
-        Some(reversed) => Ok(number + reversed),
-        None => Err(PyValueError::new_err("Unable to reverse number")),
-    }
+    let reversed = BigUint::from_radix_be(&number.to_radix_le(BASE), BASE)
+        .ok_or_else(|| PyValueError::new_err("Unable to reverse number"))?;
+    Ok(number + reversed)
 }
 
 /// Find the first palindrome produced by reverse-and-add routine (including number of iterations
@@ -95,6 +93,38 @@ fn fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
     }
 }
 
+/// Given a number, this function compute the sequence of digits resulting from reading out loud
+/// the number, grouping together multiples of the same digit if any.
+/// E.g. 3211 becomes 131221 (one 3, one 2, two 1s)
+#[pyfunction]
+fn read_out_loud(number: BigUint) -> PyResult<BigUint> {
+    let mut current_digit: u8 = 0;
+    let mut count: u8 = 0;
+    let mut result: Vec<u8> = Vec::new();
+
+    for i in number.to_radix_be(BASE) {
+        if count == 0 {
+            current_digit = i;
+        }
+
+        if i == current_digit {
+            count += 1;
+        } else {
+            result.push(count);
+            result.push(current_digit);
+            current_digit = i;
+            count = 1;
+        }
+    }
+
+    result.push(count);
+    result.push(current_digit);
+
+    BigUint::from_radix_be(&result, BASE).ok_or_else(|| {
+        PyValueError::new_err(format!("Unable to read out loud the number {}", number))
+    })
+}
+
 /// A collection of functions to play with Lychrel numbers and other funny mathematical problems
 #[pymodule]
 fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
@@ -108,6 +138,7 @@ fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
         module
     )?)?;
     module.add_function(wrap_pyfunction!(fibonacci, module)?)?;
+    module.add_function(wrap_pyfunction!(read_out_loud, module)?)?;
 
     Ok(())
 }
