@@ -1,6 +1,6 @@
 [package]
 name = "lychrel"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Alessio Sanfratello <sanfra90@gmail.com>"]
 edition = "2018"
 description = "A collection of functions to play with Lychrel numbers and other funny mathematical problems"

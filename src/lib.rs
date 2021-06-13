@@ -1,14 +1,12 @@
 use num_bigint::{BigInt, BigUint, ToBigInt};
 use num_traits::{One, Zero};
-use pyo3::create_exception;
-use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
+use pyo3::exceptions::PyValueError;
 
 const BASE: u32 = 10;
 const MAX_ITERATIONS: usize = 10000;
 
-create_exception!(lychrel, LychrelError, PyException);
 
 /// Reverse the base 10 representation of the input number and return the sum.
 /// E.g. reverse_and_add(23) -> 55, because 23 + 32 == 55
@@ -16,7 +14,7 @@ create_exception!(lychrel, LychrelError, PyException);
 fn reverse_and_add(number: BigUint) -> PyResult<BigUint> {
     match BigUint::from_radix_be(&number.to_radix_le(BASE), BASE) {
         Some(reversed) => Ok(number + reversed),
-        None => Err(LychrelError::new_err("Unable to reverse number")),
+        None => Err(PyValueError::new_err("Unable to reverse number")),
     }
 }
 
@@ -47,7 +45,7 @@ fn lychrel_palindrome_with_iterations(
     }
 
     if iterations == max_iterations {
-        Err(LychrelError::new_err("Maximum iteration reached"))
+        Err(PyValueError::new_err("Maximum iteration reached"))
     } else {
         Ok((next, iterations))
     }
