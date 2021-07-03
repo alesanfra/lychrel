@@ -12,7 +12,7 @@ license-file = "LICENSE"
 [dependencies]
 pyo3 = { version = "*", features = ["num-bigint", "extension-module"] }
 num-traits = "*"
-num-bigint = "<0.4.0"
+num-bigint = "*"
 
 [lib]
 name = "lychrel"
