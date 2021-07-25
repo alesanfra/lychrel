@@ -1,4 +1,4 @@
-name: Tests
+name: Build
 
 on: [ push, pull_request ]
 
@@ -20,7 +20,7 @@ jobs:
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
-          args: --release --strip --universal2 --out dist --no-sdist -m python/Cargo.toml
+          args: --release --strip --universal2 --out dist --no-sdist
       - name: Install built wheel
         run: |
           pip install lychrel --no-index --find-links dist --force-reinstall
