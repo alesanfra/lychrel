@@ -1,0 +1,76 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - released
+      - prereleased
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: [ 3.8, 3.9 ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          default: true
+      - name: Build wheels
+        uses: messense/maturin-action@v1
+        with:
+          args: --release --strip --universal2 --out dist --no-sdist
+      - name: Install built wheel
+        run: |
+          pip install lychrel --no-index --find-links dist --force-reinstall
+          python -c "import lychrel"
+      - name: Install dev requirements
+        run: |
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        run: |
+          pytest tests/ -v
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Build Wheels
+        uses: messense/maturin-action@v1
+        with:
+          target: x86_64
+          manylinux: auto
+          args: --release --strip --out dist --no-sdist
+      - name: Install built wheel
+        run: |
+          pip install lychrel --no-index --find-links dist --force-reinstall
+          python -c "import lychrel"
+      - name: Install dev requirements
+        run: |
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        run: |
+          pytest tests/ -v
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
