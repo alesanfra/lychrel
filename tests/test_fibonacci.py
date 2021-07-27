@@ -16,7 +16,7 @@ def py_fibonacci(n, p=1, q=-1):
     return n2
 
 
-@pytest.mark.parametrize("p", list(range(-100, 100)))
+@pytest.mark.parametrize("p", list(range(-10, 10)))
 @pytest.mark.parametrize("q", [-3, -2, -1, 0, 1])
 def test_fibonacci(p, q):
     assert lychrel.fibonacci(1000, p, q) == py_fibonacci(1000, p, q)

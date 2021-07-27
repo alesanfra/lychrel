@@ -17,3 +17,6 @@ Under the hood lychrel is implemented in rust thanks to [PyO3](https://github.co
 - **Read out and loud**: Given a number, this function compute the sequence of digits resulting from reading out loud
   the number, grouping together multiples of the same digit if any. E.g. `read_out_loud(3211) == 131221` because the
   number `3211` is read as "one 3, one 2 and two 1s";
+- **Kaprekar's routine**: an iterative [algorithm](https://en.wikipedia.org/wiki/Kaprekar%27s_routine) that, with each iteration, takes a natural number in a given number
+  base, creates two new numbers by sorting the digits of its number by descending and ascending order, and subtracts the
+  second from the first to yield the natural number for the next iteration;

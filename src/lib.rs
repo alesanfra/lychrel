@@ -1,3 +1,5 @@
+mod util;
+
 use num_bigint::{BigInt, BigUint, ToBigInt};
 use num_traits::{One, Zero};
 use pyo3::exceptions::PyValueError;
@@ -125,6 +127,35 @@ fn read_out_loud(number: BigUint) -> PyResult<BigUint> {
     })
 }
 
+/// Kaprekar's routine
+#[pyfunction]
+fn kaprekar(
+    number: BigUint,
+    base: Option<u32>,
+    max_iterations: Option<usize>,
+) -> PyResult<BigUint> {
+    let _base = base.unwrap_or(BASE);
+    let _max_iterations = max_iterations.unwrap_or(MAX_ITERATIONS);
+    let mut previous = number;
+
+    for _ in 0.._max_iterations {
+        let sorted = util::sorted_digits(&previous, _base);
+        let first = BigUint::from_radix_le(&sorted, _base)
+            .ok_or_else(|| PyValueError::new_err("Not a decimal number"))?;
+        let second = BigUint::from_radix_be(&sorted, _base)
+            .ok_or_else(|| PyValueError::new_err("Not a decimal number"))?;
+        let result = first - second;
+
+        if result == previous {
+            return Ok(result);
+        }
+
+        previous = result;
+    }
+
+    Err(PyValueError::new_err("Maximum iteration reached"))
+}
+
 /// A collection of functions to play with Lychrel numbers and other funny mathematical problems
 #[pymodule]
 fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
@@ -139,6 +170,7 @@ fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
     )?)?;
     module.add_function(wrap_pyfunction!(fibonacci, module)?)?;
     module.add_function(wrap_pyfunction!(read_out_loud, module)?)?;
+    module.add_function(wrap_pyfunction!(kaprekar, module)?)?;
 
     Ok(())
 }
