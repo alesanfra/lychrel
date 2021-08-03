@@ -1,10 +1,10 @@
-mod util;
-
 use num_bigint::{BigInt, BigUint, ToBigInt};
 use num_traits::{One, Zero};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
+
+mod collatz;
+mod util;
 
 const BASE: u32 = 10;
 const MAX_ITERATIONS: usize = 10000;
@@ -156,6 +156,16 @@ fn kaprekar(
     Err(PyValueError::new_err("Maximum iteration reached"))
 }
 
+/// Collatz conjecture sequence
+#[pyfunction]
+fn collatz(start: u128) -> PyResult<collatz::CollatzIterator> {
+    if start == 0 {
+        Err(PyValueError::new_err("Start number must be > 0"))
+    } else {
+        Ok(collatz::CollatzIterator::new(start))
+    }
+}
+
 /// A collection of functions to play with Lychrel numbers and other funny mathematical problems
 #[pymodule]
 fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
@@ -171,6 +181,7 @@ fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(fibonacci, module)?)?;
     module.add_function(wrap_pyfunction!(read_out_loud, module)?)?;
     module.add_function(wrap_pyfunction!(kaprekar, module)?)?;
+    module.add_function(wrap_pyfunction!(collatz, module)?)?;
 
     Ok(())
 }
