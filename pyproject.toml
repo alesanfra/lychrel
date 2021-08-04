@@ -1,3 +1,10 @@
 [build-system]
 requires = ["maturin>=0.10,<1.0"]
 build-backend = "maturin"
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
