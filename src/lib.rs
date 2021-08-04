@@ -72,7 +72,10 @@ fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
     lychrel_palindrome_with_iterations(number, iterations.unwrap_or(MAX_ITERATIONS)).is_err()
 }
 
-/// Generalized fibonacci sequence
+/// Generalized Fibonacci sequence (aka Lucas sequence)
+/// The number F(n) is computed with the following  formula: F(n) = p*F(n-1) - q*F(n-2),
+/// where p and q are two integers. With p==1 and q==-1 we have the standard Fibonacci sequence:
+/// F(n) = 1*F(n-1) - (-1)*F(n-2) = F(n-1) + F(n-2)
 #[pyfunction]
 fn fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
     if number <= 1 {

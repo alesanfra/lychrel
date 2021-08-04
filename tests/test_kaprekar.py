@@ -1,5 +1,6 @@
-import lychrel
 import pytest
+
+import lychrel
 
 
 @pytest.mark.parametrize(

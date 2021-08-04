@@ -26,11 +26,10 @@ impl PyIterProtocol for CollatzIterator {
     }
 
     fn __next__(mut self_: PyRefMut<Self>) -> IterNextOutput<u128, ()> {
-        let current = self_.next;
-
         if self_.stop {
             IterNextOutput::Return(())
         } else {
+            let current = self_.next;
             self_.next = if current % 2 != 0 {
                 current * 3 + 1
             } else {
