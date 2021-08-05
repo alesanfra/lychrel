@@ -28,7 +28,7 @@ jobs:
       - name: Install built wheel
         run: |
           pip install lychrel --no-index --find-links dist --force-reinstall
-          python -c "import lychrel"
+          python -I -c "import lychrel"
       - name: Install dev requirements
         run: |
           pip install -r requirements-dev.txt
@@ -57,7 +57,7 @@ jobs:
       - name: Install built wheel
         run: |
           pip install lychrel --no-index --find-links dist --force-reinstall
-          python -c "import lychrel"
+          python -I -c "import lychrel"
       - name: Install dev requirements
         run: |
           pip install -r requirements-dev.txt
