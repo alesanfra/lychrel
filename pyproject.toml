@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "lychrel"
-requires-python = ">=3.8"
+requires-python = ">=3.6"
 classifiers = [
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
@@ -20,3 +20,7 @@ line-length = 79
 [tool.isort]
 profile = "black"
 line_length = 79
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
