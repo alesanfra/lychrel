@@ -7,14 +7,15 @@ on:
 jobs:
   macos:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        python-version: [ 3.8, 3.9 ]
+    #    strategy:
+    #      matrix:
+    #        python-version: [ 3.8, 3.9 ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          #          python-version: ${{ matrix.python-version }}
+          python-version: '3.x'
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -29,12 +30,10 @@ jobs:
         run: |
           pip install lychrel --no-index --find-links dist --force-reinstall
           python -I -c "import lychrel"
-      - name: Install dev requirements
-        run: |
-          pip install -r requirements-dev.txt
       - name: Run tests
         run: |
-          pytest tests/ -v
+          pip install -r requirements-dev.txt
+          pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
@@ -46,8 +45,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
-          architecture: x64
+          python-version: '3.x'
       - name: Build Wheels
         uses: messense/maturin-action@v1
         with:
@@ -58,17 +56,16 @@ jobs:
         run: |
           pip install lychrel --no-index --find-links dist --force-reinstall
           python -I -c "import lychrel"
-      - name: Install dev requirements
-        run: |
-          pip install -r requirements-dev.txt
       - name: Run tests
         run: |
-          pytest tests/ -v
+          pip install -r requirements-dev.txt
+          pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
           name: wheels
           path: dist
+
   release:
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"

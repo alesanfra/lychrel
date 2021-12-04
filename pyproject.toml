@@ -23,4 +23,5 @@ line_length = 79
 
 [tool.pytest.ini_options]
 minversion = "6.0"
+addopts = "-v"
 testpaths = ["tests"]
