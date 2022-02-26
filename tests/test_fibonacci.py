@@ -12,6 +12,7 @@ def test_fibonacci(p, q):
     assert lychrel.fibonacci(1000, p, q) == lychrel.py.fibonacci(1000, p, q)
 
 
+@pytest.mark.benchmark
 def test_benchmark_fibonacci():
     start_rs = time.time()
 

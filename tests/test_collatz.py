@@ -21,6 +21,7 @@ def test_collatz_zero():
         lychrel.collatz(0)
 
 
+@pytest.mark.benchmark
 def test_benchmark_collatz():
     n = 123456789
     start_rs = time.time()

@@ -23,5 +23,8 @@ line_length = 79
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-v"
+addopts = "-v -m \"not benchmark\""
 testpaths = ["tests"]
+markers = [
+    "benchmark: perform benchmarks against an equivalent python implementation",
+]

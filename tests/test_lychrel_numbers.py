@@ -41,6 +41,7 @@ def test_is_lychrel_candidate(number, expected_result):
     assert lychrel.is_lychrel_candidate(number) is expected_result
 
 
+@pytest.mark.benchmark
 @pytest.mark.parametrize("number", LYCHREL_NUMBERS)
 def test_benchmark_lychrel_implementation(number):
     start_rs = time.time()
