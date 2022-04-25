@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "lychrel"
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 classifiers = [
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
