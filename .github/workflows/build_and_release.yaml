@@ -28,7 +28,7 @@ jobs:
         uses: messense/maturin-action@v1
         with:
           manylinux: auto
-          args: -i python${{ matrix.python-version }} --release --strip --universal2 --out dist --no-sdist
+          args: -i python${{ matrix.python-version }} --release --strip --universal2 --out dist
       - name: Install built wheel
         run: |
           pip install lychrel --no-index --find-links dist --force-reinstall
