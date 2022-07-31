@@ -13,7 +13,7 @@ import lychrel.py
     ],
 )
 def test_collatz(n, expected):
-    assert list(lychrel.collatz(n)) == expected
+    assert lychrel.collatz(n) == expected
 
 
 def test_collatz_zero():
@@ -23,14 +23,14 @@ def test_collatz_zero():
 
 @pytest.mark.benchmark
 def test_benchmark_collatz():
-    n = 123456789
-    start_rs = time.time()
-    rust_res = list(lychrel.collatz(n))
-    rust_time = time.time() - start_rs
+    n = int(123e20)
+    start_rs = time.perf_counter()
+    rust_res = lychrel.collatz(n)
+    rust_time = time.perf_counter() - start_rs
 
-    start_py = time.time()
+    start_py = time.perf_counter()
     py_res = list(lychrel.py.collatz(n))
-    py_time = time.time() - start_py
+    py_time = time.perf_counter() - start_py
 
     assert py_res == rust_res
 

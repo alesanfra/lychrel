@@ -14,17 +14,17 @@ def test_fibonacci(p, q):
 
 @pytest.mark.benchmark
 def test_benchmark_fibonacci():
-    start_rs = time.time()
+    start_rs = time.perf_counter()
 
     for _ in range(10):
         rust_res = lychrel.fibonacci(9999)
-    rust_time = time.time() - start_rs
+    rust_time = time.perf_counter() - start_rs
 
-    start_py = time.time()
+    start_py = time.perf_counter()
     for _ in range(10):
         py_res = lychrel.py.fibonacci(9999)
 
-    py_time = time.time() - start_py
+    py_time = time.perf_counter() - start_py
 
     assert py_res == rust_res
 

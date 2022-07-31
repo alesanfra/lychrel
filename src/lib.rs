@@ -1,6 +1,5 @@
 use num_bigint::{BigInt, BigUint, ToBigInt};
 use num_traits::{One, Zero};
-use pyo3::class::iter::IterNextOutput;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -160,49 +159,24 @@ fn kaprekar(
 }
 
 /// Collatz conjecture sequence
+#[pyfunction]
+fn collatz(start: u128) -> PyResult<Vec<u128>> {
+    if start == 0 {
+        Err(PyValueError::new_err("Start number must be > 0"))
+    } else {
+        let mut result: Vec<u128> = vec![start];
+        let mut current: u128 = start;
 
-#[pyclass]
-pub struct CollatzIterator {
-    next: u128,
-    stop: bool,
-}
-
-#[pymethods]
-impl CollatzIterator {
-    #[new]
-    pub fn new(start: u128) -> Self {
-        Self {
-            next: start,
-            stop: false,
-        }
-    }
-
-    fn __iter__(self_: PyRef<Self>) -> PyRef<Self> {
-        self_
-    }
-
-    fn __next__(mut self_: PyRefMut<Self>) -> IterNextOutput<u128, ()> {
-        if self_.stop {
-            IterNextOutput::Return(())
-        } else {
-            let current = self_.next;
-            self_.next = if current % 2 != 0 {
+        while current != 1 {
+            current = if current % 2 != 0 {
                 current * 3 + 1
             } else {
                 current / 2
             };
-            self_.stop = current == 1;
-            IterNextOutput::Yield(current)
+            result.push(current);
         }
-    }
-}
 
-#[pyfunction]
-fn collatz(start: u128) -> PyResult<CollatzIterator> {
-    if start == 0 {
-        Err(PyValueError::new_err("Start number must be > 0"))
-    } else {
-        Ok(CollatzIterator::new(start))
+        Ok(result)
     }
 }
 
