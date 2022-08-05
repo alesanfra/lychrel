@@ -8,22 +8,14 @@ mod util;
 const BASE: u32 = 10;
 const MAX_ITERATIONS: usize = 10000;
 
-/// Reverse the base 10 representation of the input number and return the sum.
-/// E.g. reverse_and_add(23) -> 55, because 23 + 32 == 55
-#[pyfunction]
-fn reverse_and_add(number: BigUint) -> PyResult<BigUint> {
-    let reversed = BigUint::from_radix_be(&number.to_radix_le(BASE), BASE)
-        .ok_or_else(|| PyValueError::new_err("Unable to reverse number"))?;
-    Ok(number + reversed)
-}
-
 /// Find the first palindrome produced by reverse-and-add routine (including number of iterations
 /// needed)
 #[pyfunction]
-fn lychrel_palindrome_with_iterations(
+fn find_lychrel_palindrome(
     number: BigUint,
-    max_iterations: usize,
+    max_iterations: Option<usize>,
 ) -> PyResult<(BigUint, usize)> {
+    let max_iterations = max_iterations.unwrap_or(MAX_ITERATIONS);
     let mut next: BigUint = number;
     let mut iterations: usize = 0;
 
@@ -50,25 +42,10 @@ fn lychrel_palindrome_with_iterations(
     }
 }
 
-/// Find the first palindrome produced by reverse-and-add routine
-#[pyfunction]
-fn lychrel_palindrome(number: BigUint) -> PyResult<BigUint> {
-    let (palindrome, _) = lychrel_palindrome_with_iterations(number, MAX_ITERATIONS)?;
-    Ok(palindrome)
-}
-
-/// Returns the number of iterations needed to find the first palindrome produced by
-/// reverse-and-add routine
-#[pyfunction]
-fn lychrel_iterations(number: BigUint) -> PyResult<usize> {
-    let (_, iterations) = lychrel_palindrome_with_iterations(number, MAX_ITERATIONS)?;
-    Ok(iterations)
-}
-
 /// Check whether the input is a possible Lychrel number
 #[pyfunction]
 fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
-    lychrel_palindrome_with_iterations(number, iterations.unwrap_or(MAX_ITERATIONS)).is_err()
+    find_lychrel_palindrome(number, iterations).is_err()
 }
 
 /// Generalized Fibonacci sequence (aka Lucas sequence)
@@ -184,14 +161,8 @@ fn collatz(start: u128) -> PyResult<Vec<u128>> {
 #[pymodule]
 fn lychrel(_py: Python, module: &PyModule) -> PyResult<()> {
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
-    module.add_function(wrap_pyfunction!(reverse_and_add, module)?)?;
     module.add_function(wrap_pyfunction!(is_lychrel_candidate, module)?)?;
-    module.add_function(wrap_pyfunction!(lychrel_palindrome, module)?)?;
-    module.add_function(wrap_pyfunction!(lychrel_iterations, module)?)?;
-    module.add_function(wrap_pyfunction!(
-        lychrel_palindrome_with_iterations,
-        module
-    )?)?;
+    module.add_function(wrap_pyfunction!(find_lychrel_palindrome, module)?)?;
     module.add_function(wrap_pyfunction!(fibonacci, module)?)?;
     module.add_function(wrap_pyfunction!(read_out_loud, module)?)?;
     module.add_function(wrap_pyfunction!(kaprekar, module)?)?;
