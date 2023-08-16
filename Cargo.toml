@@ -1,6 +1,6 @@
 [package]
 name = "lychrel"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Alessio Sanfratello <sanfra90@gmail.com>"]
 edition = "2021"
 description = "A collection of functions to play with Lychrel numbers and other funny mathematical problems"
@@ -10,7 +10,7 @@ repository = "https://github.com/alesanfra/lychrel"
 license-file = "LICENSE"
 
 [dependencies]
-pyo3 = { version = "*", features = ["num-bigint", "extension-module"] }
+pyo3 = { version = "*", features = ["num-bigint", "extension-module", "abi3-py37"] }
 num-traits = "*"
 num-bigint = "*"
 
