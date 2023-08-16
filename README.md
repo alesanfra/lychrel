@@ -23,3 +23,46 @@ Under the hood lychrel is implemented in rust thanks to [PyO3](https://github.co
   iteration.
 - **Collatz conjecture**: also known as [3n+1 problem](https://en.wikipedia.org/wiki/Collatz_conjecture), implements an
   iterator given a starting number. E.g. `list(collatz(5)) == [5, 16, 8, 4, 2, 1]`.
+
+## Getting started
+
+**Lychrel** is available on [PyPi](https://pypi.org/project/lychrel/), to install it just type on your favourite shell:
+
+```shell
+pip install lychrel
+```
+
+### Install from source
+If you want to install lychrel from source code,
+clone this repo and
+create a **virtual environment** with python 3.7+ using your favourite tool (conda, virtualenv, etc.),
+then follow these steps:
+
+#### 1. Install dev requirements
+```shell
+pip install -r requirements-dev.txt
+```
+
+#### 2. Build the package
+```shell
+maturin develop
+```
+
+For optimal performances add the `--release` option:
+
+```shell
+maturin develop --release
+```
+
+## Examples
+
+Check whether a number is a lychrel candidate:
+
+```python
+from lychrel import is_lychrel_candidate
+
+assert is_lychrel_candidate(196)
+assert not is_lychrel_candidate(197)
+```
+
+Check out the tests for more examples.
