@@ -1,9 +1,14 @@
 [build-system]
-requires = ["maturin>=1"]
+requires = ["maturin>=1.2,<2.0"]
 build-backend = "maturin"
 
 [project]
 name = "lychrel"
+authors = [
+    { name = "Alessio Sanfratello", email = "sanfra90@gmail.com" },
+]
+description = "A collection of functions to play with Lychrel numbers and other funny mathematical problems"
+readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
     "Intended Audience :: Education",
@@ -13,6 +18,16 @@ classifiers = [
     "Programming Language :: Rust",
     "Topic :: Scientific/Engineering :: Mathematics"
 ]
+dynamic = [
+    'version'
+]
+
+[project.urls]
+Homepage = "https://github.com/alesanfra/lychrel"
+Source = "https://github.com/alesanfra/lychrel"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
 
 [tool.black]
 line-length = 79

@@ -1,19 +1,14 @@
 [package]
 name = "lychrel"
 version = "0.7.2"
-authors = ["Alessio Sanfratello <sanfra90@gmail.com>"]
-edition = "2021"
-description = "A collection of functions to play with Lychrel numbers and other funny mathematical problems"
-readme = "README.md"
 homepage = "https://github.com/alesanfra/lychrel"
-repository = "https://github.com/alesanfra/lychrel"
-license-file = "LICENSE"
+edition = "2021"
+
+[lib]
+name = "lychrel"
+crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "*", features = ["num-bigint", "extension-module", "abi3-py37"] }
 num-traits = "*"
 num-bigint = "*"
-
-[lib]
-name = "lychrel"
-crate-type = ["cdylib"]
