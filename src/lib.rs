@@ -3,8 +3,6 @@ use num_traits::{One, Zero};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-mod util;
-
 const BASE: u32 = 10;
 const MAX_ITERATIONS: usize = 10000;
 
@@ -17,9 +15,8 @@ fn find_lychrel_palindrome(
 ) -> PyResult<(BigUint, usize)> {
     let max_iterations = max_iterations.unwrap_or(MAX_ITERATIONS);
     let mut next: BigUint = number;
-    let mut iterations: usize = 0;
 
-    while iterations < max_iterations {
+    for iterations in 0..max_iterations {
         let base10_representation = next.to_radix_le(BASE);
 
         // Check whether the decimal representation is palindrome
@@ -27,19 +24,14 @@ fn find_lychrel_palindrome(
             .iter()
             .eq(base10_representation.iter().rev())
         {
-            break;
+            return Ok((next, iterations));
         }
 
         // Reverse and add
         next += BigUint::from_radix_be(&base10_representation, BASE).unwrap();
-        iterations += 1;
     }
 
-    if iterations == max_iterations {
-        Err(PyValueError::new_err("Maximum iteration reached"))
-    } else {
-        Ok((next, iterations))
-    }
+    Err(PyValueError::new_err("Maximum iterations reached"))
 }
 
 /// Check whether the input is a possible Lychrel number
@@ -106,6 +98,13 @@ fn read_out_loud(number: BigUint) -> PyResult<BigUint> {
     })
 }
 
+#[inline(always)]
+fn sorted_digits(n: &BigUint, base: u32) -> Vec<u8> {
+    let mut sorted = n.to_radix_be(base);
+    sorted.sort_unstable();
+    sorted
+}
+
 /// Kaprekar's routine
 #[pyfunction]
 fn kaprekar(
@@ -118,7 +117,7 @@ fn kaprekar(
     let mut previous = number;
 
     for _ in 0.._max_iterations {
-        let sorted = util::sorted_digits(&previous, _base);
+        let sorted = sorted_digits(&previous, _base);
         let first = BigUint::from_radix_le(&sorted, _base)
             .ok_or_else(|| PyValueError::new_err("Not a decimal number"))?;
         let second = BigUint::from_radix_be(&sorted, _base)
