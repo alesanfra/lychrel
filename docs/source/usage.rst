@@ -13,7 +13,7 @@ To use Lychrel, first install it using pip:
    (.venv) $ pip install lychrel
 
 Check lychrel numbers
-----------------
+---------------------
 
 To check whether a number is a lychrel candidate
 you can use the ``lychrel.is_lychrel_candidate()`` function:
