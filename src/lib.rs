@@ -36,8 +36,8 @@ fn find_lychrel_palindrome(
 
 /// Check whether the input is a possible Lychrel number
 #[pyfunction]
-fn is_lychrel_candidate(number: BigUint, iterations: Option<usize>) -> bool {
-    find_lychrel_palindrome(number, iterations).is_err()
+fn is_lychrel_candidate(number: BigUint, max_iterations: Option<usize>) -> bool {
+    find_lychrel_palindrome(number, max_iterations).is_err()
 }
 
 /// Generalized Fibonacci sequence (aka Lucas sequence)
