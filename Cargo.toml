@@ -1,7 +1,6 @@
 [package]
 name = "lychrel"
-version = "0.7.2"
-homepage = "https://github.com/alesanfra/lychrel"
+version = "0.7.3"
 edition = "2021"
 
 [lib]
