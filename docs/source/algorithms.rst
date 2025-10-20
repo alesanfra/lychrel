@@ -177,7 +177,7 @@ counting consecutive occurrences of each digit:
 Function Reference
 ~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: lychrel.read_out_loud
+.. autofunction:: lychrel.look_and_say
 
 Examples
 ~~~~~~~~
@@ -187,16 +187,16 @@ Examples
    import lychrel
 
    # Basic examples
-   print(lychrel.read_out_loud(1))        # 11
-   print(lychrel.read_out_loud(12))       # 1112
-   print(lychrel.read_out_loud(3211))     # 131221
-   print(lychrel.read_out_loud(2333355))  # 124325
+   print(lychrel.look_and_say(1))        # 11
+   print(lychrel.look_and_say(12))       # 1112
+   print(lychrel.look_and_say(3211))     # 131221
+   print(lychrel.look_and_say(2333355))  # 124325
 
    # Generate the Look-and-Say sequence
    n = 1
    for i in range(10):
        print(f"Step {i}: {n}")
-       n = lychrel.read_out_loud(n)
+       n = lychrel.look_and_say(n)
 
    # Output:
    # Step 0: 1

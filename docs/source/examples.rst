@@ -205,7 +205,7 @@ Analyze the growth rate of the Look-and-Say sequence:
        lengths = [len(str(n))]
        
        for i in range(iterations):
-           n = lychrel.read_out_loud(n)
+           n = lychrel.look_and_say(n)
            lengths.append(len(str(n)))
        
        # Calculate growth rates

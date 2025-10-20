@@ -26,7 +26,7 @@ Kaprekar's Routine
 Look-and-Say Sequence
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: lychrel.read_out_loud
+.. autofunction:: lychrel.look_and_say
 
 Collatz Conjecture
 ~~~~~~~~~~~~~~~~~~

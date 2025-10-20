@@ -59,7 +59,7 @@ Here are typical performance improvements compared to pure Python implementation
      - 18x
      - 22x
      - 25x
-   * - ``read_out_loud(3211)``
+   * - ``look_and_say(3211)``
      - 15x
      - 20x
      - 24x

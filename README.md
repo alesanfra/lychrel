@@ -50,7 +50,7 @@ Given a number, compute the sequence of digits resulting from reading it out lou
 - `12` → `1112` (one 1, one 2)
 
 **Function:**
-- `read_out_loud(number)`: Generate the read-out-loud representation
+- `look_and_say(number)`: Generate the look-and-say representation
 
 ### Kaprekar's Routine
 An iterative [algorithm](https://en.wikipedia.org/wiki/Kaprekar%27s_routine) that manipulates digits of a number in a specific base.
@@ -192,18 +192,18 @@ kaprekar(1234, max_iterations=100)
 ### Read Out Loud
 
 ```python
-from lychrel import read_out_loud
+from lychrel import look_and_say
 
-print(read_out_loud(1))        # 11 (one 1)
-print(read_out_loud(12))       # 1112 (one 1, one 2)
-print(read_out_loud(3211))     # 131221 (one 3, one 2, two 1s)
-print(read_out_loud(2333355))  # 124325 (one 2, three 3s, two 5s)
+print(look_and_say(1))        # 11 (one 1)
+print(look_and_say(12))       # 1112 (one 1, one 2)
+print(look_and_say(3211))     # 131221 (one 3, one 2, two 1s)
+print(look_and_say(2333355))  # 124325 (one 2, three 3s, two 5s)
 
 # Create sequences (Look-and-say sequence)
 n = 1
 for _ in range(5):
     print(n)
-    n = read_out_loud(n)
+    n = look_and_say(n)
 # Output:
 # 1
 # 11

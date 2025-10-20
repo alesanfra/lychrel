@@ -226,22 +226,22 @@ fn fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
 /// import lychrel
 ///
 /// # Single digit: "one 1"
-/// assert lychrel.read_out_loud(1) == 11
+/// assert lychrel.look_and_say(1) == 11
 ///
 /// # Two different digits: "one 1, one 2"
-/// assert lychrel.read_out_loud(12) == 1112
+/// assert lychrel.look_and_say(12) == 1112
 ///
 /// # Multiple same digits: "one 3, one 2, two 1s"
-/// assert lychrel.read_out_loud(3211) == 131221
+/// assert lychrel.look_and_say(3211) == 131221
 ///
 /// # Complex example: "one 2, three 3s, two 5s"
-/// assert lychrel.read_out_loud(2333355) == 124325
+/// assert lychrel.look_and_say(2333355) == 124325
 ///
 /// # Generate the Look-and-Say sequence
 /// n = 1
 /// for _ in range(5):
 ///     print(n)
-///     n = lychrel.read_out_loud(n)
+///     n = lychrel.look_and_say(n)
 /// # Output: 1, 11, 21, 1211, 111221
 /// ```
 ///
@@ -253,7 +253,7 @@ fn fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
 /// * Never contains the substring "333"
 /// * Related to Conway's cosmological theorem
 #[pyfunction]
-fn read_out_loud(number: BigUint) -> PyResult<BigUint> {
+fn look_and_say(number: BigUint) -> PyResult<BigUint> {
     let mut current_digit: u8 = 0;
     let mut count: u8 = 0;
     let mut result: Vec<u8> = Vec::new();
@@ -471,7 +471,7 @@ fn lychrel(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(is_lychrel_candidate, module)?)?;
     module.add_function(wrap_pyfunction!(find_lychrel_palindrome, module)?)?;
     module.add_function(wrap_pyfunction!(fibonacci, module)?)?;
-    module.add_function(wrap_pyfunction!(read_out_loud, module)?)?;
+    module.add_function(wrap_pyfunction!(look_and_say, module)?)?;
     module.add_function(wrap_pyfunction!(kaprekar, module)?)?;
     module.add_function(wrap_pyfunction!(collatz, module)?)?;
 

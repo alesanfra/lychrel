@@ -366,7 +366,7 @@ Test Organization
    ├── test_fibonacci.py           # Fibonacci tests
    ├── test_kaprekar.py            # Kaprekar tests
    ├── test_collatz.py             # Collatz tests
-   └── test_read_out_loud.py       # Read-out-loud tests
+   └── test_look_and_say.py        # Look-and-say tests
 
 Writing Good Tests
 ~~~~~~~~~~~~~~~~~~
