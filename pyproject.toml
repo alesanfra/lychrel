@@ -29,12 +29,15 @@ Source = "https://github.com/alesanfra/lychrel"
 [tool.maturin]
 features = ["pyo3/extension-module"]
 
-[tool.black]
+[tool.ruff]
 line-length = 79
 
-[tool.isort]
-profile = "black"
-line_length = 79
+[tool.ruff.lint]
+select = ["E", "F", "I"]  # Enable pycodestyle errors, pyflakes, and isort
+fixable = ["ALL"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["lychrel"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
