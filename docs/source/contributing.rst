@@ -99,13 +99,13 @@ Create a descriptive branch name:
 
    def new_function(n):
        """Add comprehensive docstring.
-       
+
        Args:
            n: Description of parameter
-           
+
        Returns:
            Description of return value
-           
+
        Raises:
            ValueError: When and why this is raised
        """
@@ -118,17 +118,17 @@ Create a descriptive branch name:
    // src/lib.rs
 
    /// Comprehensive documentation comment
-   /// 
+   ///
    /// # Arguments
-   /// 
+   ///
    /// * `number` - Description of parameter
-   /// 
+   ///
    /// # Returns
-   /// 
+   ///
    /// Description of return value
-   /// 
+   ///
    /// # Errors
-   /// 
+   ///
    /// When and why errors occur
    #[pyfunction]
    #[pyo3(signature = (number, param=None))]
@@ -254,30 +254,30 @@ Python Code Style
 
    def example_function(number: int, max_iter: Optional[int] = None) -> Tuple[int, int]:
        """Short one-line summary.
-       
+
        Longer description if needed. Explain what the function does,
        any important algorithms or edge cases.
-       
+
        Args:
            number: The input number to process
            max_iter: Maximum iterations (default: None means use default)
-           
+
        Returns:
            A tuple of (result, iterations)
-           
+
        Raises:
            ValueError: If number is negative
-           
+
        Example:
            >>> example_function(42)
            (84, 1)
        """
        if number < 0:
            raise ValueError("number must be non-negative")
-       
+
        iterations = 0
        result = number * 2
-       
+
        return result, iterations
 
 Rust Code Style
@@ -295,24 +295,24 @@ Rust Code Style
    use num_bigint::BigUint;
 
    /// Compute something interesting with a number.
-   /// 
+   ///
    /// This function implements the XYZ algorithm which...
-   /// 
+   ///
    /// # Arguments
-   /// 
+   ///
    /// * `number` - The input number
    /// * `max_iterations` - Maximum iterations (default: 10000)
-   /// 
+   ///
    /// # Returns
-   /// 
+   ///
    /// Returns a tuple of (result, iteration_count)
-   /// 
+   ///
    /// # Errors
-   /// 
+   ///
    /// Returns `PyValueError` if max iterations is reached
-   /// 
+   ///
    /// # Example
-   /// 
+   ///
    /// ```python
    /// import lychrel
    /// result, iters = lychrel.example_function(42)
@@ -324,14 +324,14 @@ Rust Code Style
        max_iterations: Option<usize>,
    ) -> PyResult<(BigUint, usize)> {
        let max_iter = max_iterations.unwrap_or(10000);
-       
+
        for iteration in 0..max_iter {
            // Implementation
            if some_condition {
                return Ok((result, iteration));
            }
        }
-       
+
        Err(PyValueError::new_err("Maximum iterations reached"))
    }
 
@@ -378,28 +378,28 @@ Writing Good Tests
 
    class TestNewFeature:
        """Test suite for new feature."""
-       
+
        def test_basic_functionality(self):
            """Test that basic usage works."""
            result = lychrel.new_function(42)
            assert result == expected_value
-       
+
        def test_edge_case_zero(self):
            """Test behavior with zero."""
            result = lychrel.new_function(0)
            assert result == 0
-       
+
        def test_edge_case_large_number(self):
            """Test with very large numbers."""
            large_num = 10**100
            result = lychrel.new_function(large_num)
            assert isinstance(result, int)
-       
+
        def test_invalid_input(self):
            """Test that invalid input raises appropriate error."""
            with pytest.raises(ValueError, match="must be positive"):
                lychrel.new_function(-1)
-       
+
        @pytest.mark.parametrize("input,expected", [
            (1, 1),
            (10, 10),
@@ -425,23 +425,23 @@ Add benchmarks to verify performance:
    def test_performance_comparison():
        """Verify Rust implementation is faster than Python."""
        import time
-       
+
        # Test input
        n = 89
        iterations = 1000
-       
+
        # Rust version
        start = time.perf_counter()
        for _ in range(iterations):
            lychrel.new_function(n)
        rust_time = time.perf_counter() - start
-       
+
        # Python version
        start = time.perf_counter()
        for _ in range(iterations):
            lychrel.py.new_function(n)
        python_time = time.perf_counter() - start
-       
+
        # Rust should be faster
        assert python_time > rust_time
 
@@ -485,30 +485,30 @@ Adding New Algorithms
 If you want to add a new algorithm:
 
 1. **Open an Issue First**
-   
+
    Discuss the algorithm, its use cases, and API design
 
 2. **Implement in Rust**
-   
+
    Add function to ``src/lib.rs`` with PyO3 bindings
 
 3. **Add Python Reference**
-   
+
    Add pure Python version to ``lychrel/py.py`` for testing
 
 4. **Write Comprehensive Tests**
-   
+
    Include unit tests, integration tests, and benchmarks
 
 5. **Document Thoroughly**
-   
+
    * Add docstrings to functions
    * Create or update RST documentation
    * Add examples to usage guide
    * Update README.md
 
 6. **Update Module Export**
-   
+
    Add function to module's ``__all__`` list
 
 Example PR Structure
@@ -517,10 +517,10 @@ Example PR Structure
 .. code-block:: text
 
    Add Euler's Totient Function
-   
-   Implements Euler's totient function φ(n) which counts the positive 
+
+   Implements Euler's totient function φ(n) which counts the positive
    integers up to n that are relatively prime to n.
-   
+
    Changes:
    - Add totient() function in Rust (src/lib.rs)
    - Add Python reference implementation (lychrel/py.py)
@@ -528,7 +528,7 @@ Example PR Structure
    - Add documentation (docs/source/algorithms.rst)
    - Update README with example
    - Benchmark shows 35x speedup vs Python
-   
+
    Closes #123
 
 Community Guidelines

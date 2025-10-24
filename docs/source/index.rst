@@ -25,7 +25,7 @@ The library currently implements five fascinating mathematical algorithms:
 **Lychrel Numbers**
    Explore the reverse-and-add algorithm and discover Lychrel candidates—numbers that may never form palindromes.
 
-**Generalized Fibonacci Sequences** 
+**Generalized Fibonacci Sequences**
    Compute terms in Lucas sequences, generalizations of the famous Fibonacci sequence including Pell numbers and more.
 
 **Kaprekar's Routine**
@@ -54,13 +54,13 @@ Then start exploring:
 
    # Check for Lychrel candidates
    print(lychrel.is_lychrel_candidate(196))  # True
-   
+
    # Compute Fibonacci numbers
    print(lychrel.fibonacci(10))  # 55
-   
+
    # Apply Kaprekar's routine
    print(lychrel.kaprekar(1234))  # 6174
-   
+
    # Generate Collatz sequence
    print(lychrel.collatz(27))  # [27, 82, 41, ..., 2, 1]
 

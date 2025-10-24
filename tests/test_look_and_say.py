@@ -9,4 +9,3 @@ import lychrel
 )
 def test_look_and_say(number, expected_output):
     assert lychrel.look_and_say(number) == expected_output
-

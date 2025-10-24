@@ -301,7 +301,7 @@ Have an idea for a new mathematical problem to implement? Open an issue to discu
    # Python code
    black .
    isort .
-   
+
    # Rust code
    cargo fmt
    ```

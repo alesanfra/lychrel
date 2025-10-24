@@ -98,7 +98,7 @@ To run your own benchmarks:
        """Simple benchmark helper."""
        # Warm-up
        func(*args)
-       
+
        start = time.perf_counter()
        for _ in range(iterations):
            func(*args)
@@ -111,7 +111,7 @@ To run your own benchmarks:
    # Benchmark Python implementation
    py_time = benchmark(lychrel.py.find_lychrel_palindrome, 89)
    print(f"Python: {py_time:.4f}s")
-   
+
    print(f"Speedup: {py_time / rust_time:.1f}x")
 
 Official Benchmark Suite
@@ -306,7 +306,7 @@ For independent computations, use Python's multiprocessing:
    # Process in parallel
    with Pool() as pool:
        results = pool.map(check_lychrel, range(1, 10000))
-   
+
    candidates = [n for n, is_candidate in results if is_candidate]
    print(f"Found {len(candidates)} Lychrel candidates")
 

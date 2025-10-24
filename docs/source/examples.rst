@@ -22,11 +22,11 @@ Let's find all Lychrel candidates below 10,000:
        for n in range(1, max_number + 1):
            if lychrel.is_lychrel_candidate(n, max_iterations):
                candidates.append(n)
-           
+
            # Progress indicator
            if n % 1000 == 0:
                print(f"Checked up to {n}...")
-       
+
        return candidates
 
    # Find candidates below 1000
@@ -51,7 +51,7 @@ Analyze how quickly different numbers form palindromes:
    def analyze_palindrome_formation(numbers):
        """Analyze iteration counts for palindrome formation."""
        results = []
-       
+
        for n in numbers:
            try:
                palindrome, iterations = lychrel.find_lychrel_palindrome(n)
@@ -67,7 +67,7 @@ Analyze how quickly different numbers form palindromes:
                    'iterations': None,
                    'palindrome': None
                })
-       
+
        return results
 
    # Analyze numbers from 1 to 200
@@ -100,12 +100,12 @@ Compare different Fibonacci-like sequences:
    def compare_sequences(n, sequences):
        """Compare multiple generalized Fibonacci sequences."""
        results = {}
-       
+
        for name, params in sequences.items():
            p, q = params
            sequence = [lychrel.fibonacci(i, p=p, q=q) for i in range(n)]
            results[name] = sequence
-       
+
        return results
 
    # Define sequences
@@ -146,7 +146,7 @@ Visualize the Collatz sequence and analyze patterns:
    def visualize_collatz(start_number):
        """Visualize the Collatz sequence."""
        sequence = lychrel.collatz(start_number)
-       
+
        plt.figure(figsize=(12, 6))
        plt.plot(sequence, marker='o', linestyle='-', linewidth=1, markersize=3)
        plt.title(f'Collatz Sequence starting from {start_number}')
@@ -155,7 +155,7 @@ Visualize the Collatz sequence and analyze patterns:
        plt.grid(True, alpha=0.3)
        plt.yscale('log')  # Log scale to see patterns better
        plt.show()
-       
+
        print(f"Starting number: {start_number}")
        print(f"Steps to reach 1: {len(sequence) - 1}")
        print(f"Maximum value reached: {max(sequence)}")
@@ -168,11 +168,11 @@ Visualize the Collatz sequence and analyze patterns:
    def compare_stopping_times(max_n):
        """Compare stopping times for numbers up to max_n."""
        stopping_times = []
-       
+
        for n in range(1, max_n + 1):
            sequence = lychrel.collatz(n)
            stopping_times.append((n, len(sequence) - 1))
-       
+
        # Plot
        numbers, times = zip(*stopping_times)
        plt.figure(figsize=(12, 6))
@@ -182,7 +182,7 @@ Visualize the Collatz sequence and analyze patterns:
        plt.ylabel('Stopping Time (steps to reach 1)')
        plt.grid(True, alpha=0.3)
        plt.show()
-       
+
        # Find interesting numbers
        max_time_n, max_time = max(stopping_times, key=lambda x: x[1])
        print(f"Number with longest stopping time: {max_time_n} ({max_time} steps)")
@@ -203,21 +203,21 @@ Analyze the growth rate of the Look-and-Say sequence:
        """Analyze growth rate of Look-and-Say sequence."""
        n = 1
        lengths = [len(str(n))]
-       
+
        for i in range(iterations):
            n = lychrel.look_and_say(n)
            lengths.append(len(str(n)))
-       
+
        # Calculate growth rates
        growth_rates = [lengths[i+1] / lengths[i] for i in range(len(lengths)-1)]
-       
+
        # Conway's constant: approximately 1.303577...
        conway_constant = 1.303577269034296
-       
+
        print(f"Final length after {iterations} iterations: {lengths[-1]}")
        print(f"Average growth rate: {sum(growth_rates) / len(growth_rates):.6f}")
        print(f"Conway's constant: {conway_constant:.6f}")
-       
+
        # Plot lengths
        plt.figure(figsize=(12, 6))
        plt.subplot(1, 2, 1)
@@ -227,18 +227,18 @@ Analyze the growth rate of the Look-and-Say sequence:
        plt.ylabel('Number of Digits')
        plt.yscale('log')
        plt.grid(True, alpha=0.3)
-       
+
        # Plot growth rates
        plt.subplot(1, 2, 2)
        plt.plot(growth_rates, marker='o', alpha=0.5)
-       plt.axhline(y=conway_constant, color='r', linestyle='--', 
+       plt.axhline(y=conway_constant, color='r', linestyle='--',
                    label="Conway's Constant")
        plt.title('Growth Rate per Iteration')
        plt.xlabel('Iteration')
        plt.ylabel('Growth Rate')
        plt.legend()
        plt.grid(True, alpha=0.3)
-       
+
        plt.tight_layout()
        plt.show()
 
@@ -261,25 +261,25 @@ Here's a comprehensive benchmark:
 
    def benchmark_function(func_rust, func_python, *args, iterations=1000):
        """Benchmark a function against its Python equivalent."""
-       
+
        # Warm-up
        func_rust(*args)
        func_python(*args)
-       
+
        # Benchmark Rust implementation
        start = time.perf_counter()
        for _ in range(iterations):
            func_rust(*args)
        rust_time = time.perf_counter() - start
-       
+
        # Benchmark Python implementation
        start = time.perf_counter()
        for _ in range(iterations):
            func_python(*args)
        python_time = time.perf_counter() - start
-       
+
        speedup = python_time / rust_time
-       
+
        return {
            'rust_time': rust_time,
            'python_time': python_time,
@@ -380,21 +380,21 @@ Performance advantage increases with problem size:
    def measure_scaling(sizes):
        """Measure how performance scales with input size."""
        results = []
-       
+
        for size in sizes:
            # Rust
            start = time.perf_counter()
            _ = lychrel.fibonacci(size)
            rust_time = time.perf_counter() - start
-           
+
            # Python
            start = time.perf_counter()
            _ = lychrel.py.fibonacci(size)
            python_time = time.perf_counter() - start
-           
+
            speedup = python_time / rust_time
            results.append((size, rust_time, python_time, speedup))
-       
+
        return results
 
    sizes = [100, 500, 1000, 5000, 10000]
@@ -435,8 +435,8 @@ When processing multiple numbers, batch them efficiently:
 
    # Also good: Use list comprehension
    palindromes = [
-       lychrel.find_lychrel_palindrome(n) 
-       for n in numbers 
+       lychrel.find_lychrel_palindrome(n)
+       for n in numbers
        if not lychrel.is_lychrel_candidate(n)
    ]
 
@@ -449,7 +449,7 @@ When processing multiple numbers, batch them efficiently:
 
    # Good: Keep as integers
    result = lychrel.fibonacci(100)
-   
+
    # Avoid: Unnecessary string conversion
    # result_str = str(lychrel.fibonacci(100))  # Only if needed
 

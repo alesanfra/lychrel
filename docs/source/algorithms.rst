@@ -34,19 +34,19 @@ Special Cases
 By choosing different values of :math:`p` and :math:`q`, we get different famous sequences:
 
 * **Standard Fibonacci** (:math:`p=1, q=-1`): :math:`F(n) = F(n-1) + F(n-2)`
-  
+
   Sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144...
 
 * **Lucas Numbers** (:math:`p=1, q=-1`, with :math:`F(0)=2, F(1)=1`):
-  
+
   Sequence: 2, 1, 3, 4, 7, 11, 18, 29, 47, 76, 123...
 
 * **Pell Numbers** (:math:`p=2, q=-1`): :math:`F(n) = 2F(n-1) + F(n-2)`
-  
+
   Sequence: 0, 1, 2, 5, 12, 29, 70, 169, 408, 985, 2378...
 
 * **Jacobsthal Numbers** (:math:`p=1, q=-2`): :math:`F(n) = F(n-1) + 2F(n-2)`
-  
+
   Sequence: 0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341...
 
 Function Reference
