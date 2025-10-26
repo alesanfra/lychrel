@@ -5,7 +5,7 @@ site_url: https://lychrel.readthedocs.io
 
 repo_name: alesanfra/lychrel
 repo_url: https://github.com/alesanfra/lychrel
-edit_uri: edit/rebirth/docs/
+edit_uri: edit/main/docs/
 
 theme:
   name: material
