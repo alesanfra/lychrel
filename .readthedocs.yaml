@@ -1,13 +1,20 @@
 version: 2
 
 build:
-  os: ubuntu-22.04
+  os: ubuntu-lts-latest
   tools:
-    python: "3.11"
+    python: latest
+    rust: latest
 
 mkdocs:
   configuration: mkdocs.yml
+  fail_on_warning: false
 
 python:
   install:
-    - requirements: docs/requirements.txt
+    # uv sync reads pyproject.toml and uv.lock, so the docs dependencies and
+    # the extension itself come from the same pins as local development.
+    - method: uv
+      command: sync
+      groups:
+        - docs

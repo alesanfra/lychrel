@@ -1,10 +1,70 @@
-use num_bigint::{BigInt, BigUint, ToBigInt};
-use num_traits::{One, Zero};
+use num_bigint::{BigInt, BigUint};
+use num_traits::{One, ToPrimitive, Zero};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use pyo3::types::{PyInt, PyList};
 
 const BASE: u32 = 10;
 const MAX_ITERATIONS: usize = 10000;
+
+// Under the stable ABI, PyO3 converts arbitrary-precision integers through
+// `int.to_bytes` and `int.from_bytes`, which costs more than most of the
+// computations here. `Natural` and `Integer` convert values that fit in 64
+// bits natively and use BigUint and BigInt only for larger ones.
+
+/// A non-negative Python int.
+struct Natural(BigUint);
+
+impl FromPyObject<'_, '_> for Natural {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
+        match ob.extract::<u64>() {
+            Ok(n) => Ok(Natural(n.into())),
+            Err(_) => ob.extract::<BigUint>().map(Natural),
+        }
+    }
+}
+
+impl<'py> IntoPyObject<'py> for Natural {
+    type Target = PyInt;
+    type Output = Bound<'py, PyInt>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> PyResult<Self::Output> {
+        match self.0.to_u64() {
+            Some(n) => Ok(n.into_pyobject(py)?),
+            None => self.0.into_pyobject(py),
+        }
+    }
+}
+
+/// A Python int of either sign.
+struct Integer(BigInt);
+
+impl FromPyObject<'_, '_> for Integer {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
+        match ob.extract::<i64>() {
+            Ok(n) => Ok(Integer(n.into())),
+            Err(_) => ob.extract::<BigInt>().map(Integer),
+        }
+    }
+}
+
+impl<'py> IntoPyObject<'py> for Integer {
+    type Target = PyInt;
+    type Output = Bound<'py, PyInt>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> PyResult<Self::Output> {
+        match self.0.to_i64() {
+            Some(n) => Ok(n.into_pyobject(py)?),
+            None => self.0.into_pyobject(py),
+        }
+    }
+}
 
 /// Find the first palindrome produced by the reverse-and-add routine.
 ///
@@ -52,28 +112,30 @@ const MAX_ITERATIONS: usize = 10000;
 #[pyfunction]
 #[pyo3(signature = (number, max_iterations=None))]
 fn find_lychrel_palindrome(
-    number: BigUint,
+    py: Python<'_>,
+    number: Natural,
     max_iterations: Option<usize>,
-) -> PyResult<(BigUint, usize)> {
+) -> PyResult<(Natural, usize)> {
     let max_iterations = max_iterations.unwrap_or(MAX_ITERATIONS);
-    let mut next: BigUint = number;
+    py.detach(|| first_palindrome(number.0, max_iterations))
+        .map(|(palindrome, iterations)| (Natural(palindrome), iterations))
+        .ok_or_else(|| PyValueError::new_err("Maximum iterations reached"))
+}
 
+/// Run reverse-and-add until a palindrome, checking at most `max_iterations` values.
+fn first_palindrome(mut next: BigUint, max_iterations: usize) -> Option<(BigUint, usize)> {
     for iterations in 0..max_iterations {
-        let base10_representation = next.to_radix_le(BASE);
+        let digits = next.to_radix_le(BASE);
 
-        // Check whether the decimal representation is palindrome
-        if base10_representation
-            .iter()
-            .eq(base10_representation.iter().rev())
-        {
-            return Ok((next, iterations));
+        if digits.iter().eq(digits.iter().rev()) {
+            return Some((next, iterations));
         }
 
-        // Reverse and add
-        next += BigUint::from_radix_be(&base10_representation, BASE).unwrap();
+        // Reading the little-endian digits as big-endian reverses the number.
+        next += BigUint::from_radix_be(&digits, BASE)?;
     }
 
-    Err(PyValueError::new_err("Maximum iterations reached"))
+    None
 }
 
 /// Check whether a number is a potential Lychrel number.
@@ -118,88 +180,110 @@ fn find_lychrel_palindrome(
 /// a number is truly a Lychrel number (which would require infinite iterations).
 #[pyfunction]
 #[pyo3(signature = (number, max_iterations=None))]
-fn is_lychrel_candidate(number: BigUint, max_iterations: Option<usize>) -> bool {
-    find_lychrel_palindrome(number, max_iterations).is_err()
+fn is_lychrel_candidate(py: Python<'_>, number: Natural, max_iterations: Option<usize>) -> bool {
+    let max_iterations = max_iterations.unwrap_or(MAX_ITERATIONS);
+    py.detach(|| first_palindrome(number.0, max_iterations))
+        .is_none()
 }
 
-/// Compute the nth term of a generalized Fibonacci sequence (Lucas sequence).
+/// Term `number` of the sequence W(0) = a, W(1) = b, W(n) = p*W(n-1) - q*W(n-2).
+fn second_order_term(number: usize, a: BigInt, b: BigInt, p: isize, q: isize) -> BigInt {
+    if number == 0 {
+        return a;
+    }
+
+    let mut previous = a;
+    let mut current = b;
+
+    for _ in 1..number {
+        let next = &current * p - &previous * q;
+        previous = std::mem::replace(&mut current, next);
+    }
+
+    current
+}
+
+/// Compute the nth term of a Horadam sequence.
 ///
-/// This function implements Lucas sequences, which are generalizations of the Fibonacci sequence.
-/// The sequence is defined by the recurrence relation:
+/// A Horadam sequence is defined by two initial values and the recurrence
 ///
-///     F(n) = p * F(n-1) - q * F(n-2)
+///     W(0) = a,  W(1) = b,  W(n) = p * W(n-1) - q * W(n-2)
 ///
-/// with initial conditions F(0) = 0 and F(1) = 1.
+/// With a=0, b=1 it is the Lucas sequence of the first kind U(p, q), which
+/// includes the Fibonacci (p=1, q=-1), Pell (p=2, q=-1), and Jacobsthal
+/// (p=1, q=-2) numbers. With a=2, b=p it is the Lucas sequence of the second
+/// kind V(p, q), which includes the Lucas numbers (p=1, q=-1).
 ///
 /// # Arguments
 ///
 /// * `number` - The position in the sequence (n >= 0)
-/// * `p` - The first parameter of the recurrence relation (default: 1)
-/// * `q` - The second parameter of the recurrence relation (default: -1)
-///
-/// # Returns
-///
-/// The nth term of the sequence as a BigInt (supports arbitrarily large numbers).
-///
-/// # Special Cases
-///
-/// Different values of p and q produce different famous sequences:
-///
-/// * **Fibonacci** (p=1, q=-1): F(n) = F(n-1) + F(n-2)
-///   - Sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ...
-///
-/// * **Pell** (p=2, q=-1): F(n) = 2*F(n-1) + F(n-2)
-///   - Sequence: 0, 1, 2, 5, 12, 29, 70, 169, 408, 985, ...
-///
-/// * **Jacobsthal** (p=1, q=-2): F(n) = F(n-1) + 2*F(n-2)
-///   - Sequence: 0, 1, 1, 3, 5, 11, 21, 43, 85, 171, ...
+/// * `a` - The term W(0) (default: 0)
+/// * `b` - The term W(1) (default: 1)
+/// * `p` - The first parameter of the recurrence (default: 1)
+/// * `q` - The second parameter of the recurrence (default: -1)
 ///
 /// # Examples
 ///
 /// ```python
 /// import lychrel
 ///
-/// # Standard Fibonacci sequence
-/// assert lychrel.fibonacci(10) == 55
-/// assert lychrel.fibonacci(20) == 6765
+/// # Defaults give the Fibonacci numbers
+/// assert lychrel.horadam(10) == 55
 ///
 /// # Pell numbers
-/// assert lychrel.fibonacci(10, p=2, q=-1) == 2378
+/// assert lychrel.horadam(10, p=2, q=-1) == 2378
 ///
-/// # Jacobsthal numbers
-/// assert lychrel.fibonacci(10, p=1, q=-2) == 341
-///
-/// # Works with very large numbers
-/// big_fib = lychrel.fibonacci(1000)
-/// print(f"Fibonacci(1000) has {len(str(big_fib))} digits")
-/// # Output: Fibonacci(1000) has 209 digits
+/// # Same recurrence, different start: 3, 4, 7, 11, 18, ...
+/// assert lychrel.horadam(4, a=3, b=4) == 18
 /// ```
-///
-/// # Performance
-///
-/// The function uses an iterative algorithm with O(n) time complexity and O(1) space
-/// complexity. Thanks to Rust's BigInt, it handles arbitrarily large results efficiently.
 #[pyfunction]
-#[pyo3(signature = (number, p=None, q=None))]
-fn fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
-    if number <= 1 {
-        number.to_bigint().unwrap()
-    } else {
-        let lucas_p = p.unwrap_or(1);
-        let lucas_q = q.unwrap_or(-1);
+#[pyo3(signature = (number, a=None, b=None, p=None, q=None))]
+fn horadam(
+    py: Python<'_>,
+    number: usize,
+    a: Option<Integer>,
+    b: Option<Integer>,
+    p: Option<isize>,
+    q: Option<isize>,
+) -> Integer {
+    let a = a.map_or_else(BigInt::zero, |a| a.0);
+    let b = b.map_or_else(BigInt::one, |b| b.0);
+    let (p, q) = (p.unwrap_or(1), q.unwrap_or(-1));
+    Integer(py.detach(|| second_order_term(number, a, b, p, q)))
+}
 
-        let mut previous = BigInt::zero();
-        let mut current = BigInt::one();
+/// Compute the nth Fibonacci number.
+///
+/// F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2). For other values of p and q
+/// (Pell, Jacobsthal, ...) use `horadam`.
+///
+/// # Examples
+///
+/// ```python
+/// import lychrel
+///
+/// assert lychrel.fibonacci(10) == 55
+/// ```
+#[pyfunction]
+fn fibonacci(py: Python<'_>, number: usize) -> Integer {
+    Integer(py.detach(|| second_order_term(number, BigInt::zero(), BigInt::one(), 1, -1)))
+}
 
-        for _ in 1..number {
-            let next_previous = current.clone();
-            let next_current = (current * lucas_p) - (previous * lucas_q);
-            previous = next_previous;
-            current = next_current;
-        }
-
-        current
-    }
+/// Compute the nth Lucas number.
+///
+/// L(0) = 2, L(1) = 1, L(n) = L(n-1) + L(n-2). For other values of p and q
+/// (Pell-Lucas, ...) use `horadam`.
+///
+/// # Examples
+///
+/// ```python
+/// import lychrel
+///
+/// assert lychrel.lucas(10) == 123
+/// ```
+#[pyfunction]
+fn lucas(py: Python<'_>, number: usize) -> Integer {
+    Integer(py.detach(|| second_order_term(number, BigInt::from(2), BigInt::one(), 1, -1)))
 }
 
 /// Generate the "read out loud" representation of a number (Look-and-Say sequence).
@@ -253,7 +337,8 @@ fn fibonacci(number: usize, p: Option<isize>, q: Option<isize>) -> BigInt {
 /// * Never contains the substring "333"
 /// * Related to Conway's cosmological theorem
 #[pyfunction]
-fn look_and_say(number: BigUint) -> PyResult<BigUint> {
+fn look_and_say(number: Natural) -> PyResult<Natural> {
+    let number = number.0;
     let mut current_digit: u8 = 0;
     let mut count: u8 = 0;
     let mut result: Vec<u8> = Vec::new();
@@ -276,14 +361,18 @@ fn look_and_say(number: BigUint) -> PyResult<BigUint> {
     result.push(count);
     result.push(current_digit);
 
-    BigUint::from_radix_be(&result, BASE).ok_or_else(|| {
-        PyValueError::new_err(format!("Unable to read out loud the number {}", number))
-    })
+    BigUint::from_radix_be(&result, BASE)
+        .map(Natural)
+        .ok_or_else(|| {
+            PyValueError::new_err(format!("Unable to read out loud the number {}", number))
+        })
 }
 
 #[inline(always)]
-fn sorted_digits(n: &BigUint, base: u32) -> Vec<u8> {
+fn sorted_digits(n: &BigUint, base: u32, width: usize) -> Vec<u8> {
     let mut sorted = n.to_radix_be(base);
+    // Keep the starting width: 999 from a four-digit number is 0999.
+    sorted.resize(sorted.len().max(width), 0);
     sorted.sort_unstable();
     sorted
 }
@@ -310,7 +399,10 @@ fn sorted_digits(n: &BigUint, base: u32) -> Vec<u8> {
 ///
 /// Returns a `ValueError` if:
 /// * The maximum number of iterations is reached without finding a fixed point
-/// * The number is not valid in the specified base
+/// * `base` is not between 2 and 256
+///
+/// Every intermediate value keeps the digit count of `number`, padding with
+/// leading zeros: 2111 gives 2111 - 1112 = 999, which continues as 9990 - 0999.
 ///
 /// # Algorithm
 ///
@@ -354,30 +446,43 @@ fn sorted_digits(n: &BigUint, base: u32) -> Vec<u8> {
 #[pyfunction]
 #[pyo3(signature = (number, base=None, max_iterations=None))]
 fn kaprekar(
-    number: BigUint,
+    py: Python<'_>,
+    number: Natural,
     base: Option<u32>,
     max_iterations: Option<usize>,
-) -> PyResult<BigUint> {
-    let _base = base.unwrap_or(BASE);
-    let _max_iterations = max_iterations.unwrap_or(MAX_ITERATIONS);
+) -> PyResult<Natural> {
+    let number = number.0;
+    let base = base.unwrap_or(BASE);
+    if !(2..=256).contains(&base) {
+        return Err(PyValueError::new_err(format!(
+            "base must be between 2 and 256, got {base}"
+        )));
+    }
+    let max_iterations = max_iterations.unwrap_or(MAX_ITERATIONS);
+    py.detach(|| kaprekar_fixed_point(number, base, max_iterations))
+        .map(Natural)
+        .ok_or_else(|| PyValueError::new_err("Maximum iteration reached"))
+}
+
+/// Iterate Kaprekar's routine until a fixed point, for at most `max_iterations` steps.
+fn kaprekar_fixed_point(number: BigUint, base: u32, max_iterations: usize) -> Option<BigUint> {
+    let width = number.to_radix_be(base).len();
     let mut previous = number;
 
-    for _ in 0.._max_iterations {
-        let sorted = sorted_digits(&previous, _base);
-        let first = BigUint::from_radix_le(&sorted, _base)
-            .ok_or_else(|| PyValueError::new_err("Not a decimal number"))?;
-        let second = BigUint::from_radix_be(&sorted, _base)
-            .ok_or_else(|| PyValueError::new_err("Not a decimal number"))?;
-        let result = first - second;
+    for _ in 0..max_iterations {
+        let sorted = sorted_digits(&previous, base, width);
+        let largest = BigUint::from_radix_le(&sorted, base)?;
+        let smallest = BigUint::from_radix_be(&sorted, base)?;
+        let result = largest - smallest;
 
         if result == previous {
-            return Ok(result);
+            return Some(result);
         }
 
         previous = result;
     }
 
-    Err(PyValueError::new_err("Maximum iteration reached"))
+    None
 }
 
 /// Generate the Collatz sequence (3n+1 problem) for a given starting number.
@@ -400,7 +505,7 @@ fn kaprekar(
 ///
 /// # Errors
 ///
-/// Returns a `ValueError` if `start` is 0 or negative.
+/// Returns a `ValueError` if `start` is 0.
 ///
 /// # Examples
 ///
@@ -413,7 +518,7 @@ fn kaprekar(
 ///
 /// # Longer sequence
 /// sequence = lychrel.collatz(27)
-/// print(f"Length: {len(sequence)}")  # 111 steps!
+/// print(f"Length: {len(sequence)}")  # 112
 /// print(f"Maximum value: {max(sequence)}")  # 9232
 ///
 /// # Find stopping time (steps to reach 1)
@@ -444,36 +549,60 @@ fn kaprekar(
 /// The function generates the complete sequence in memory. For very large starting numbers
 /// or numbers with exceptionally long sequences, memory usage should be considered.
 #[pyfunction]
-fn collatz(start: u128) -> PyResult<Vec<u128>> {
-    if start == 0 {
-        Err(PyValueError::new_err("Start number must be > 0"))
-    } else {
-        let mut result: Vec<u128> = vec![start];
-        let mut current: u128 = start;
+fn collatz(py: Python<'_>, start: Natural) -> PyResult<Bound<'_, PyList>> {
+    let start = start.0;
+    if start.is_zero() {
+        return Err(PyValueError::new_err("Start number must be > 0"));
+    }
 
-        while current != 1 {
-            current = if current % 2 != 0 {
-                current * 3 + 1
-            } else {
-                current / 2
-            };
-            result.push(current);
+    let result = PyList::empty(py);
+    result.append(Natural(start.clone()))?;
+    let mut current = start;
+
+    // Most terms fit in 128 bits, where arithmetic is much cheaper than with
+    // BigUint. Fall back to BigUint only for the terms that do not.
+    'outer: loop {
+        if let Some(mut n) = current.to_u128() {
+            while n != 1 {
+                if n.is_multiple_of(2) {
+                    n /= 2;
+                } else if let Some(next) = n.checked_mul(3).and_then(|m| m.checked_add(1)) {
+                    n = next;
+                } else {
+                    current = BigUint::from(n) * 3u32 + 1u32;
+                    result.append(Natural(current.clone()))?;
+                    continue 'outer;
+                }
+                match u64::try_from(n) {
+                    Ok(small) => result.append(small)?,
+                    Err(_) => result.append(n)?,
+                }
+            }
+            return Ok(result);
         }
 
-        Ok(result)
+        current = if current.bit(0) {
+            current * 3u32 + 1u32
+        } else {
+            current >> 1
+        };
+        result.append(Natural(current.clone()))?;
     }
 }
 
 /// A collection of functions to play with Lychrel numbers and other funny mathematical problems
 #[pymodule]
-fn lychrel(module: &Bound<'_, PyModule>) -> PyResult<()> {
-    module.add("__version__", env!("CARGO_PKG_VERSION"))?;
-    module.add_function(wrap_pyfunction!(is_lychrel_candidate, module)?)?;
-    module.add_function(wrap_pyfunction!(find_lychrel_palindrome, module)?)?;
-    module.add_function(wrap_pyfunction!(fibonacci, module)?)?;
-    module.add_function(wrap_pyfunction!(look_and_say, module)?)?;
-    module.add_function(wrap_pyfunction!(kaprekar, module)?)?;
-    module.add_function(wrap_pyfunction!(collatz, module)?)?;
+mod lychrel {
+    use pyo3::prelude::*;
 
-    Ok(())
+    #[pymodule_export]
+    use super::{
+        collatz, fibonacci, find_lychrel_palindrome, horadam, is_lychrel_candidate, kaprekar,
+        look_and_say, lucas,
+    };
+
+    #[pymodule_init]
+    fn init(module: &Bound<'_, PyModule>) -> PyResult<()> {
+        module.add("__version__", env!("CARGO_PKG_VERSION"))
+    }
 }

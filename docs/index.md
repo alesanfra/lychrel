@@ -1,59 +1,43 @@
-# Welcome to Lychrel's Documentation!
+# Lychrel
 
-**Lychrel** is a high-performance Python library implementing fascinating mathematical problems and algorithms, named after the mysterious [lychrel numbers](https://en.wikipedia.org/wiki/Lychrel_number).
+Lychrel is a small Python library of number-theory curiosities, written in
+Rust with [PyO3](https://pyo3.rs/). It works on Python integers of any size.
 
-The library combines the elegance and ease of Python with the performance of Rust, using PyO3 to provide Python bindings to highly optimized Rust implementations. This approach delivers:
+| Function | What it computes |
+| --- | --- |
+| [`find_lychrel_palindrome`](reference.md#find_lychrel_palindrome) | First palindrome of the reverse-and-add process |
+| [`is_lychrel_candidate`](reference.md#is_lychrel_candidate) | Whether reverse-and-add fails to reach a palindrome |
+| [`fibonacci`](reference.md#fibonacci) | Fibonacci numbers |
+| [`lucas`](reference.md#lucas) | Lucas numbers |
+| [`horadam`](reference.md#horadam) | Any recurrence W(n) = p·W(n-1) - q·W(n-2), such as Pell or Jacobsthal |
+| [`look_and_say`](reference.md#look_and_say) | Next term of the look-and-say sequence |
+| [`kaprekar`](reference.md#kaprekar) | Fixed point of Kaprekar's routine |
+| [`collatz`](reference.md#collatz) | Collatz (3n + 1) sequence |
 
-* 🚀 **Exceptional Performance**: 20-50x faster than pure Python implementations
-* 🔢 **Arbitrary Precision**: Handle numbers of any size using Rust's BigInt
-* 🐍 **Pythonic Interface**: Natural and intuitive API for Python developers
-* 📦 **Zero Dependencies**: No external Python packages required
-* ✅ **Production Ready**: Comprehensive test coverage and type hints
-
-!!! note
-    This project is under active development. Contributions and feedback are always welcome!
-
-## What's Inside
-
-The library currently implements five fascinating mathematical algorithms:
-
-**Lychrel Numbers**
-:   Explore the reverse-and-add algorithm and discover Lychrel candidates—numbers that may never form palindromes.
-
-**Generalized Fibonacci Sequences**
-:   Compute terms in Lucas sequences, generalizations of the famous Fibonacci sequence including Pell numbers and more.
-
-**Kaprekar's Routine**
-:   Apply Kaprekar's mysterious algorithm that leads to the constant 6174 for 4-digit numbers.
-
-**Look-and-Say Sequence**
-:   Generate Conway's audioactive decay sequence by "reading out loud" the digits of a number.
-
-**Collatz Conjecture**
-:   Explore the famous 3n+1 problem—one of mathematics' most intriguing unsolved conjectures.
-
-## Quick Start
-
-Installation is simple:
+## Installation
 
 ```console
 pip install lychrel
 ```
 
-Then start exploring:
+Wheels are published for Linux, macOS, and Windows, and work on any
+CPython from 3.8 on. On other platforms pip builds from source, which
+requires a Rust toolchain.
+
+## Quick start
 
 ```python
 import lychrel
 
-# Check for Lychrel candidates
-print(lychrel.is_lychrel_candidate(196))  # True
-
-# Compute Fibonacci numbers
-print(lychrel.fibonacci(10))  # 55
-
-# Apply Kaprekar's routine
-print(lychrel.kaprekar(1234))  # 6174
-
-# Generate Collatz sequence
-print(lychrel.collatz(27))  # [27, 82, 41, ..., 2, 1]
+lychrel.find_lychrel_palindrome(89)  # (8813200023188, 24)
+lychrel.is_lychrel_candidate(196)    # True
+lychrel.fibonacci(10)                # 55
+lychrel.lucas(10)                    # 123
+lychrel.horadam(10, p=2, q=-1)       # 2378 (Pell numbers)
+lychrel.look_and_say(1211)           # 111221
+lychrel.kaprekar(3524)               # 6174
+lychrel.collatz(5)                   # [5, 16, 8, 4, 2, 1]
 ```
+
+The [reference](reference.md) describes each function, its defaults, and
+the errors it raises.

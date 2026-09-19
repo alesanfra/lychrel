@@ -7,20 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking
+- `fibonacci` takes only `number`. Replace `fibonacci(n, p, q)` with
+  `horadam(n, p=p, q=q)`
+
 ### Added
-- Extensive documentation covering all algorithms
-- Performance guide with benchmarking examples
-- Contributing guidelines
-- Comprehensive examples in documentation
-- API reference with detailed type information
+- `lucas`: the Lucas numbers
+- `horadam`: any recurrence W(n) = p*W(n-1) - q*W(n-2) with initial terms
+  W(0) = a and W(1) = b. It covers both kinds of Lucas sequences, such as
+  the Pell and Jacobsthal numbers
 
 ### Changed
-- Updated PyO3 API to version 0.27.0 compatibility
-- Improved function signatures with proper default parameter handling
+- Development uses [uv](https://docs.astral.sh/uv/): dependency groups in
+  `pyproject.toml` and a committed `uv.lock` replace `requirements-dev.txt`
+  and `docs/requirements.txt`
+- CI lints Rust and Python, runs the tests with uv, builds Windows ARM64
+  wheels, and publishes to PyPI through trusted publishing
+- Read the Docs builds with `uv sync`
+- Documentation rewritten as three pages: overview, reference, and
+  development guide
+- Faster calls: integers that fit in 64 bits skip the arbitrary-precision
+  conversion, which roughly halves the cost of calls on small numbers
+- Long computations release the GIL, so calls from several threads run in
+  parallel
+- Upgraded PyO3 to 0.29, with a declarative module definition, and pinned
+  dependency versions
+- Minimum supported Python is 3.8
 
 ### Fixed
-- Fixed compilation errors with PyO3 0.27.0
-- Fixed test failures by adding proper signature annotations
+- `kaprekar` keeps the starting digit count, padding with leading zeros, so
+  numbers such as 2111 reach 6174 instead of 0
+- `kaprekar` raises `ValueError` for a `base` outside 2-256 instead of
+  panicking
+- `collatz` accepts integers of any size. It used 128-bit integers, so a term
+  above 2^128 overflowed and returned a wrong sequence
+
+### Removed
+- `polyfill.io` script and MathJax from the documentation
 
 ## [0.7.2] - 2024
 

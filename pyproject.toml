@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=1.2,<2.0"]
+requires = ["maturin>=1.13.3,<2.0"]
 build-backend = "maturin"
 
 [project]
@@ -9,39 +9,64 @@ authors = [
 ]
 description = "A collection of functions to play with Lychrel numbers and other funny mathematical problems"
 readme = "README.md"
-requires-python = ">=3.7"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["lychrel", "palindrome", "collatz", "kaprekar", "fibonacci", "math"]
+requires-python = ">=3.8"
 classifiers = [
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Rust",
-    "Topic :: Scientific/Engineering :: Mathematics"
+    "Topic :: Scientific/Engineering :: Mathematics",
 ]
-dynamic = [
-    'version'
-]
+dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/alesanfra/lychrel"
 Source = "https://github.com/alesanfra/lychrel"
+Documentation = "https://lychrel.readthedocs.io"
+Changelog = "https://github.com/alesanfra/lychrel/blob/main/CHANGELOG.md"
+Issues = "https://github.com/alesanfra/lychrel/issues"
+
+[dependency-groups]
+dev = [
+    "maturin>=1.13.3",
+    "pre-commit>=2.21.0",
+    "pytest>=7.4.4",
+    "pytest-cov>=4.1.0",
+]
+docs = [
+    "mkdocs>=1.5.3",
+    "mkdocs-material>=9.2.7",
+    "pymdown-extensions>=10.2.1",
+]
 
 [tool.maturin]
-features = ["pyo3/extension-module"]
+features = ["pyo3/extension-module", "pyo3/abi3-py38"]
 
 [tool.ruff]
 line-length = 79
 
+[tool.ruff.format]
+# Documentation snippets are wrapped for reading, not to 79 columns.
+exclude = ["**/*.md"]
+
 [tool.ruff.lint]
-select = ["E", "F", "I"]  # Enable pycodestyle errors, pyflakes, and isort
+select = ["E", "F", "I"]  # pycodestyle errors, pyflakes, isort
 fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+# The package re-exports every function of the compiled extension.
+"lychrel/__init__.py" = ["F403"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["lychrel"]
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-v -m \"not benchmark\""
+minversion = "7.0"
+addopts = "-m \"not benchmark\""
 testpaths = ["tests"]
 markers = [
     "benchmark: perform benchmarks against an equivalent python implementation",

@@ -21,6 +21,11 @@ def test_collatz_zero():
         lychrel.collatz(0)
 
 
+@pytest.mark.parametrize("n", [2**127, 2**128 - 1, 2**300 + 1])
+def test_collatz_big_numbers(n):
+    assert lychrel.collatz(n) == list(lychrel.py.collatz(n))
+
+
 @pytest.mark.benchmark
 def test_benchmark_collatz():
     n = int(123e20)
