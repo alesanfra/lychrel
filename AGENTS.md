@@ -108,7 +108,8 @@ extension with the `latest` Rust toolchain.
 
 Version lives in `Cargo.toml` and is re-exported as `lychrel.__version__`;
 `pyproject.toml` takes it from there. To release: bump the version, update
-`CHANGELOG.md`, tag, and let `.github/workflows/ci.yml` build the wheels,
+`CHANGELOG.md`, tag with the bare version (`0.9.0`), and let
+`.github/workflows/ci.yml` build the wheels,
 attest them in the `release` job, and upload them in the `publish` job. The
 upload uses PyPI trusted publishing, bound to this workflow file and the
 `pypi` environment name: renaming either breaks publishing until the

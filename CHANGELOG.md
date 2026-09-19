@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.9.0] - 2026-09-19
 
 ### Breaking
 - `fibonacci` takes only `number`. Replace `fibonacci(n, p, q)` with
@@ -45,22 +45,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `polyfill.io` script and MathJax from the documentation
 
-## [0.7.2] - 2024
+## [0.8.0] - 2025-10-24
 
-### Added
-- Collatz conjecture implementation
-- Kaprekar's routine implementation
-- Read out loud (Look-and-Say) sequence
-- Generalized Fibonacci sequences (Lucas sequences)
-- Lychrel number detection
+### Breaking
+- `read_out_loud` renamed to `look_and_say`
 
 ### Changed
-- Migrated to PyO3 for Rust-Python bindings
-- Improved performance with Rust implementation
+- Upgraded PyO3 from 0.20 to 0.27 and Rust to the 2024 edition
+- Optional arguments are declared with explicit signatures, as PyO3 0.27
+  requires
+- Docstrings with examples for every function, and expanded documentation
+- ruff replaces black and isort
 
-## Previous Versions
+## [0.7.2] - 2023-11-01
 
-See git history for changes in versions prior to 0.7.2.
+Earlier versions have no changelog; see the
+[tags](https://github.com/alesanfra/lychrel/tags) and the git history.
 
-[Unreleased]: https://github.com/alesanfra/lychrel/compare/v0.7.2...HEAD
-[0.7.2]: https://github.com/alesanfra/lychrel/releases/tag/v0.7.2
+[0.9.0]: https://github.com/alesanfra/lychrel/compare/0.8.0...0.9.0
+[0.8.0]: https://github.com/alesanfra/lychrel/compare/0.7.2...0.8.0
+[0.7.2]: https://github.com/alesanfra/lychrel/releases/tag/0.7.2

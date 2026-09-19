@@ -75,7 +75,8 @@ Add tests for new behavior, update the docs and `CHANGELOG.md`, and use
 
 1. Bump the version in `Cargo.toml`. `pyproject.toml` reads it from there.
 2. Add a `CHANGELOG.md` entry.
-3. Tag the commit and push the tag.
+3. Tag the commit with the bare version (`0.9.0`, no `v` prefix) and push
+   the tag.
 
 `.github/workflows/ci.yml` builds the wheels and publishes them to PyPI
 through trusted publishing.
